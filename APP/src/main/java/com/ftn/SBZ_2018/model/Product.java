@@ -122,5 +122,12 @@ public class Product implements Serializable{
 
 	public void setShopCart(ShoppingCart shopCart) {
 		this.shopCart = shopCart;
-	}		
+	}
+
+	@Override
+	public String toString() {
+		return "Product [id=" + id + ", name=" + name + ", manufactorer=" + manufactorer + ", description="
+				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths + ", netSys=" + netSys
+				+ ", shopCart=" + shopCart + "]";
+	}
 }

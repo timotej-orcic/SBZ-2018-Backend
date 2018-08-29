@@ -60,4 +60,9 @@ public class NetworkSystem implements Serializable {
 	public void setShopCart(ShoppingCart shopCart) {
 		this.shopCart = shopCart;
 	}
+
+	@Override
+	public String toString() {
+		return "NetworkSystem [id=" + id + ", products=" + products + ", shopCart=" + shopCart + "]";
+	}
 }

@@ -1,8 +1,10 @@
 package com.ftn.SBZ_2018.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -22,6 +24,9 @@ public class ShoppingCart implements Serializable {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
+	@Column(nullable=false)
+	private Date salesDate;
+	
 	@OneToMany(mappedBy="shoppingcart", fetch=FetchType.EAGER)
 	private Set<Product> productsCart;
 	
@@ -34,9 +39,10 @@ public class ShoppingCart implements Serializable {
 	
 	public ShoppingCart() {}
 
-	public ShoppingCart(Long id, Set<Product> productsCart, Set<NetworkSystem> netSystemsCart, User user) {
-		super();
+	public ShoppingCart(Long id, Date salesDate, Set<Product> productsCart,
+			Set<NetworkSystem> netSystemsCart, User user) {		
 		this.id = id;
+		this.salesDate = salesDate;
 		this.productsCart = productsCart;
 		this.netSystemsCart = netSystemsCart;
 		this.user = user;
@@ -48,6 +54,14 @@ public class ShoppingCart implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public Date getSalesDate() {
+		return salesDate;
+	}
+
+	public void setSalesDate(Date salesDate) {
+		this.salesDate = salesDate;
 	}
 
 	public Set<Product> getProductsCart() {
@@ -72,5 +86,11 @@ public class ShoppingCart implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	@Override
+	public String toString() {
+		return "ShoppingCart [id=" + id + ", salesDate=" + salesDate + ", productsCart=" + productsCart
+				+ ", netSystemsCart=" + netSystemsCart + ", user=" + user + "]";
 	}
 }
