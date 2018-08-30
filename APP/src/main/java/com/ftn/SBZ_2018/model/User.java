@@ -27,8 +27,11 @@ public class User implements Serializable{
 	@Column(nullable=false, length=50)
 	private String lastname;
 	
-	@Column(nullable=false, unique=true, length=50)
+	@Column(nullable=false, unique=true, length=80)
 	private String email;
+
+	@Column(nullable=false, unique=true, length=50)
+	private String username;
 	
 	@Column(nullable=false, length=50)
 	private String password;
@@ -41,12 +44,14 @@ public class User implements Serializable{
 	
 	public User() {}
 
-	public User(Long id, String firstname, String lastname, String email, String password, UserRole role,
+	public User(Long id, String firstname, String lastname, String email, 
+			String username, String password, UserRole role,
 			Set<ShoppingCart> myShoppingCarts) {
 		this.id = id;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.email = email;
+		this.username = username;
 		this.password = password;
 		this.role = role;
 		this.myShoppingCarts = myShoppingCarts;
@@ -83,6 +88,14 @@ public class User implements Serializable{
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
 	public String getPassword() {
 		return password;
@@ -111,6 +124,6 @@ public class User implements Serializable{
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", firstname=" + firstname + ", lastname=" + lastname + ", email=" + email
-				+ ", password=" + password + ", role=" + role + ", myShoppingCarts=" + myShoppingCarts + "]";
+				+ ", username=" + username + ", password=" + password + ", role=" + role + ", myShoppingCarts=" + myShoppingCarts + "]";
 	}		
 }

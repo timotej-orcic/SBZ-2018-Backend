@@ -1,54 +1,57 @@
 package com.ftn.SBZ_2018.config;
 
-import java.util.Collections;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.ftn.SBZ_2018.security.JWTAuthenticationTokenFilter;
-import com.ftn.SBZ_2018.security.JWTSuccessHandler;
-import com.ftn.SBZ_2018.security.JWTAuthenticationEntryPoint;
-import com.ftn.SBZ_2018.security.JWTAuthenticationProvider;
+import com.ftn.SBZ_2018.security.JwtFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private JWTAuthenticationProvider authenticationProvider;
-	private JWTAuthenticationEntryPoint authenticationEntryPoint;
-
-	@Bean
-	public AuthenticationManager authManager() {
-		return new ProviderManager(Collections.singletonList(authenticationProvider));
-	}
+	private final UserDetailsService userDetailsService;
 	
-	@Bean
-	public JWTAuthenticationTokenFilter authenticationTokenFilter() throws Exception {		
-		JWTAuthenticationTokenFilter filter = new JWTAuthenticationTokenFilter();
-		filter.setAuthenticationManager(authenticationManager());
-		filter.setAuthenticationSuccessHandler(new JWTSuccessHandler());
-		return filter;
+	@Autowired
+	public SecurityConfig(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
 	}
 
+	@Autowired
+	public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder.userDetailsService(this.userDetailsService);
+	}
+
+	@Bean
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-			.authorizeRequests().antMatchers("**/auth/**").authenticated()
-				.and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		
-		http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
+
+	@Bean
+	public JwtFilter jwtFilterBean() throws Exception {
+		JwtFilter jwtFilter = new JwtFilter();
+		jwtFilter.setAuthenticationManager(authenticationManagerBean());
+		return jwtFilter;
 	}
 	
-	//stigao do 18og min u tutorijalu
+	@Override
+    protected void configure(HttpSecurity httpSecurity) throws Exception 
+    {
+    	httpSecurity.csrf().disable()
+    		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    			.and().authorizeRequests().antMatchers("**/secured/**").authenticated();
+        
+		httpSecurity.addFilterBefore(jwtFilterBean(), UsernamePasswordAuthenticationFilter.class);
+	}
 }
