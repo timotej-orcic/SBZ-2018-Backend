@@ -34,7 +34,7 @@ public class ShoppingCart implements Serializable {
 	private Set<NetworkSystem> netSystemsCart;
 	
 	@ManyToOne
-	@JsonBackReference
+	@JsonBackReference(value="user")
 	private User user;
 	
 	public ShoppingCart() {}

@@ -39,11 +39,11 @@ public class Product implements Serializable{
 	private int warrantyInMonths;
 	
 	@ManyToOne
-	@JsonBackReference
+	@JsonBackReference(value="netSys")
 	private NetworkSystem netSys;
 	
 	@ManyToOne
-	@JsonBackReference
+	@JsonBackReference(value="shopCart-product")
 	private ShoppingCart shopCart;
 	
 	public Product() {}

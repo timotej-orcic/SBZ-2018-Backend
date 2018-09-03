@@ -26,7 +26,7 @@ public class NetworkSystem implements Serializable {
 	private Set<Product> products;
 	
 	@ManyToOne
-	@JsonBackReference
+	@JsonBackReference(value="shopCart-networkSystem")
 	private ShoppingCart shopCart;
 	
 	public NetworkSystem() {}

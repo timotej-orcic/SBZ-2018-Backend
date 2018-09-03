@@ -14,7 +14,7 @@ import com.ftn.SBZ_2018.netgear.service.UserService;
 import com.ftn.SBZ_2018.netgear.userDetails.CustomUserDetailsFactory;
 
 @RestController
-@RequestMapping(value = "app/")
+@RequestMapping(value = "rest/")
 public class LoginController {
 
 	@Autowired
