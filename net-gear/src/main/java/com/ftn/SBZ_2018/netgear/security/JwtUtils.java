@@ -96,7 +96,7 @@ public class JwtUtils {
     public String generateToken(UserDetails userDetails) 
     {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("subject", userDetails.getUsername());
+        claims.put("sub", userDetails.getUsername());
         claims.put("created", new Date(System.currentTimeMillis()));
         claims.put("role", userDetails.getAuthorities());
         

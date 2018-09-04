@@ -38,6 +38,9 @@ public class Product implements Serializable{
 	@Min(0)
 	private int warrantyInMonths;
 	
+	@Column(nullable=false)
+	private String base64Image;
+	
 	@ManyToOne
 	@JsonBackReference(value="netSys")
 	private NetworkSystem netSys;
@@ -49,13 +52,15 @@ public class Product implements Serializable{
 	public Product() {}
 
 	public Product(Long id, String name, String manufactorer, String description,
-			Double price, int warrantyInMonths, NetworkSystem netSys, ShoppingCart shopCart) {
+			Double price, int warrantyInMonths, String base64Image, 
+			NetworkSystem netSys, ShoppingCart shopCart) {
 		this.id = id;
 		this.name = name;
 		this.manufactorer = manufactorer;
 		this.description = description;
 		this.price = price;
 		this.warrantyInMonths = warrantyInMonths;
+		this.base64Image = base64Image;
 		this.netSys = netSys;
 		this.shopCart = shopCart;
 	}
@@ -106,6 +111,14 @@ public class Product implements Serializable{
 
 	public void setWarrantyInMonths(int warrantyInMonths) {
 		this.warrantyInMonths = warrantyInMonths;
+	}
+
+	public String getBase64Image() {
+		return base64Image;
+	}
+
+	public void setBase64Image(String base64Image) {
+		this.base64Image = base64Image;
 	}
 
 	public NetworkSystem getNetSys() {

@@ -1,0 +1,1 @@
+insert into sbz_2018_db.user values (0 , 'admin@sbz.com', 'Admin', 'Adminovic', 'admin123', 'admin', 1);
