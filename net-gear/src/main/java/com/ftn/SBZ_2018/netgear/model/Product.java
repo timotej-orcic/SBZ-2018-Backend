@@ -2,12 +2,14 @@ package com.ftn.SBZ_2018.netgear.model;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -38,8 +40,8 @@ public class Product implements Serializable{
 	@Min(0)
 	private int warrantyInMonths;
 	
-	@Column(nullable=false)
-	private String base64Image;
+	@OneToOne(cascade = CascadeType.ALL)
+	private UploadedImage base64Image;
 	
 	@ManyToOne
 	@JsonBackReference(value="netSys")
@@ -52,7 +54,7 @@ public class Product implements Serializable{
 	public Product() {}
 
 	public Product(Long id, String name, String manufactorer, String description,
-			Double price, int warrantyInMonths, String base64Image, 
+			Double price, int warrantyInMonths, UploadedImage base64Image, 
 			NetworkSystem netSys, ShoppingCart shopCart) {
 		this.id = id;
 		this.name = name;
@@ -113,11 +115,11 @@ public class Product implements Serializable{
 		this.warrantyInMonths = warrantyInMonths;
 	}
 
-	public String getBase64Image() {
+	public UploadedImage getBase64Image() {
 		return base64Image;
 	}
 
-	public void setBase64Image(String base64Image) {
+	public void setBase64Image(UploadedImage base64Image) {
 		this.base64Image = base64Image;
 	}
 
@@ -140,7 +142,7 @@ public class Product implements Serializable{
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", name=" + name + ", manufactorer=" + manufactorer + ", description="
-				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths + ", netSys=" + netSys
-				+ ", shopCart=" + shopCart + "]";
+				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths
+				+ "image"+ base64Image.getName() + ", netSys=" + netSys + ", shopCart=" + shopCart + "]";
 	}
 }
