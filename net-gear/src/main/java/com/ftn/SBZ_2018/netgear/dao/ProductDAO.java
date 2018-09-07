@@ -2,6 +2,7 @@ package com.ftn.SBZ_2018.netgear.dao;
 
 public class ProductDAO {
 
+	private Long id;
 	private String name;
 	private String manufactorer;
 	private String description;
@@ -10,12 +11,21 @@ public class ProductDAO {
 	
 	public ProductDAO() {}
 
-	public ProductDAO(String name, String manufactorer, String description, Double price, int warrantyInMonths) {
+	public ProductDAO(Long id, String name, String manufactorer, String description, Double price, int warrantyInMonths) {
+		this.id = id;
 		this.name = name;
 		this.manufactorer = manufactorer;
 		this.description = description;
 		this.price = price;
 		this.warrantyInMonths = warrantyInMonths;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -60,7 +70,7 @@ public class ProductDAO {
 
 	@Override
 	public String toString() {
-		return "ProductDAO [name=" + name + ", manufactorer=" + manufactorer + ", description=" + description
+		return "ProductDAO [id= " +  id + ", name=" + name + ", manufactorer=" + manufactorer + ", description=" + description
 				+ ", price=" + price + ", warrantyInMonths=" + warrantyInMonths +"]";
 	}
 }

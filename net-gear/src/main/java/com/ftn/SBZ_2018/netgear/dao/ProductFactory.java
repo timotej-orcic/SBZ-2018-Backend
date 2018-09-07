@@ -9,7 +9,7 @@ import com.ftn.SBZ_2018.netgear.model.UploadedImage;
 
 public class ProductFactory {
 
-	public static Product getProduct(ProductDAO productDAO, MultipartFile imageFile) throws IOException {
+	public static Product createProduct(ProductDAO productDAO, MultipartFile imageFile, boolean isCreating) throws IOException {
 		Product retObj = new Product();
 		
 		retObj.setName(productDAO.getName());
@@ -18,13 +18,29 @@ public class ProductFactory {
 		retObj.setPrice(productDAO.getPrice());
 		retObj.setWarrantyInMonths(productDAO.getWarrantyInMonths());
 		
-		UploadedImage image = new UploadedImage();
-		image.setName(imageFile.getOriginalFilename());
-		image.setType(imageFile.getContentType());
-		image.setImageBytes(imageFile.getBytes());
-		
-		retObj.setBase64Image(image);
+		if(isCreating) {
+			UploadedImage image = new UploadedImage();
+			image.setName(imageFile.getOriginalFilename());
+			image.setType(imageFile.getContentType());
+			image.setImageBytes(imageFile.getBytes());
+			
+			retObj.setBase64Image(image);
+		}
 		
 		return retObj;
+	}
+	
+	public static void setProduct(Product product, ProductDAO productDAO, MultipartFile imageFile) throws IOException {
+		product.setName(productDAO.getName());
+		product.setManufactorer(productDAO.getManufactorer());
+		product.setDescription(productDAO.getDescription());
+		product.setPrice(productDAO.getPrice());
+		product.setWarrantyInMonths(productDAO.getWarrantyInMonths());
+		
+		if(!imageFile.getOriginalFilename().equals("")) {
+			product.getBase64Image().setName(imageFile.getOriginalFilename());
+			product.getBase64Image().setType(imageFile.getContentType());
+			product.getBase64Image().setImageBytes(imageFile.getBytes());
+		}
 	}
 }
