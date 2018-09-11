@@ -1,7 +1,9 @@
 package com.ftn.SBZ_2018.netgear.controller;
 
-import java.util.Optional;
+import java.util.HashMap;
 
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.model.User;
+import com.ftn.SBZ_2018.netgear.model.UserRole;
 import com.ftn.SBZ_2018.netgear.security.JwtUtils;
 import com.ftn.SBZ_2018.netgear.service.UserService;
 import com.ftn.SBZ_2018.netgear.userDetails.ActiveUser;
@@ -32,6 +35,9 @@ public class LoginController {
 	@Autowired
 	private ActiveUsersStore activeUsersStore;
 	
+	@Autowired
+	private KieContainer kieContainer;
+	
 	@RequestMapping(value = "login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseWrapper<String> login(@RequestBody User user) {		
 		ResponseWrapper<String> retObj = new ResponseWrapper<String>();
@@ -45,8 +51,8 @@ public class LoginController {
 		}
 		else {
 			String token = jwtUtils.generateToken(CustomUserDetailsFactory.createCustomUserDetails(user));
-			ActiveUser activeUser = new ActiveUser(user.getUsername());
-			activeUsersStore.getActiveUsers().add(activeUser);
+			ActiveUser activeUser = new ActiveUser(user.getUsername(), createKieSessions(user.getRole()));
+			activeUsersStore.getActiveUsers().put(activeUser.getUsername(), activeUser);
 			retObj.setPayload(token);
 			retObj.setMessage("Login successfull");
 			retObj.setSuccess(true);
@@ -61,20 +67,34 @@ public class LoginController {
 	public ResponseWrapper<String> logout(@RequestParam(value = "username", required = true) String username) {
 		ResponseWrapper<String> retObj = new ResponseWrapper<String>();
 		
-		Optional<ActiveUser> user = activeUsersStore.getActiveUsers().stream()
-										.filter(x -> x.getUsername().equals(username)).findFirst();
+		ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
 		
-		if(user == null) {
+		if(activeUser == null) {
 			retObj.setPayload(null);
 			retObj.setMessage("Logout unsuccessfull: user is not logged in");
 			retObj.setSuccess(false);
 		}
 		else {
-			activeUsersStore.getActiveUsers().remove(user);
+			activeUsersStore.getActiveUsers().remove(activeUser);
 			retObj.setPayload(null);
 			retObj.setMessage("Logout successfull");
 			retObj.setSuccess(true);
 		}
 		return retObj;
+	}
+	
+	private HashMap<String, KieSession> createKieSessions(UserRole userRole) {
+		HashMap<String, KieSession> kieSessions = new HashMap<String, KieSession>();
+		
+		if(userRole.getName().equals("user")) {
+			KieSession userSession = kieContainer.newKieSession("userSession");
+			kieSessions.put("userSession", userSession);
+		}
+		else {
+			KieSession adminSession = kieContainer.newKieSession("adminSession");
+			kieSessions.put("adminSession", adminSession);
+		}
+		
+		return kieSessions;
 	}
 }

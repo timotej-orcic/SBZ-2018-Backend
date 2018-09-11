@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <kbase name="user-base" packages="drools.spring.userRules">
+    	<ksession name="userSession" />
+    </kbase>
+
+    <kbase name="admin-base" packages="drools.spring.adminRules">
+    	<ksession name="adminSession" />
+    </kbase>
+</kmodule>

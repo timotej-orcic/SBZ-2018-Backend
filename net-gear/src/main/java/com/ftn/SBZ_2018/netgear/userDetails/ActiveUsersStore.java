@@ -1,8 +1,7 @@
 package com.ftn.SBZ_2018.netgear.userDetails;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -13,19 +12,15 @@ public class ActiveUsersStore  implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
-	private List<ActiveUser> activeUsers = new ArrayList<ActiveUser>();
+	private HashMap<String, ActiveUser> activeUsers = new HashMap<String, ActiveUser>();
 	
 	public ActiveUsersStore() {}
 
-	public ActiveUsersStore(List<ActiveUser> activeUsers) {
-		this.activeUsers = activeUsers;
-	}
-
-	public List<ActiveUser> getActiveUsers() {
+	public HashMap<String, ActiveUser> getActiveUsers() {
 		return activeUsers;
 	}
 
-	public void setActiveUsers(List<ActiveUser> activeUsers) {
+	public void setActiveUsers(HashMap<String, ActiveUser> activeUsers) {
 		this.activeUsers = activeUsers;
 	}
 }

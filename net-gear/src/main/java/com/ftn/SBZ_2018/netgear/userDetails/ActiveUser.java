@@ -1,6 +1,9 @@
 package com.ftn.SBZ_2018.netgear.userDetails;
 
 import java.io.Serializable;
+import java.util.HashMap;
+
+import org.kie.api.runtime.KieSession;
 
 public class ActiveUser implements Serializable {
 
@@ -8,10 +11,13 @@ public class ActiveUser implements Serializable {
 	
 	private String username;
 
+	private HashMap<String, KieSession> kieSessions;
+	
 	public ActiveUser() {}
 
-	public ActiveUser(String username) {
+	public ActiveUser(String username, HashMap<String, KieSession> kieSessions) {
 		this.username = username;
+		this.kieSessions = kieSessions;
 	}
 
 	public String getUsername() {
@@ -22,8 +28,16 @@ public class ActiveUser implements Serializable {
 		this.username = username;
 	}
 
+	public HashMap<String, KieSession> getKieSessions() {
+		return kieSessions;
+	}
+
+	public void setKieSessions(HashMap<String, KieSession> kieSessions) {
+		this.kieSessions = kieSessions;
+	}
+
 	@Override
 	public String toString() {
-		return "ActiveUser [username=" + username + "]";
+		return "ActiveUser [username=" + username + ", kieSessions=" + kieSessions + "]";
 	}
 }

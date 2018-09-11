@@ -1,0 +1,21 @@
+package userRules
+
+import com.ftn.SBZ_2018.netgear.model.Product;
+import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
+import com.ftn.SBZ_2018.netgear.service.ProductService;
+
+global ProductService productService;
+
+rule "SingleProductBasicSearch"
+	agenda-group "singleProduct"
+	when
+		$sp : SearchProduct
+	then
+end
+
+rule "NetworkSystemBasicSearch"
+	agenda-group "networkSystem"
+	when
+	then
+end
+
