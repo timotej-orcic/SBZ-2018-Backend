@@ -1,6 +1,5 @@
 package com.ftn.SBZ_2018.netgear.model;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
@@ -16,10 +15,8 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-public class ShoppingCart implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
+public class ShoppingCart {
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;

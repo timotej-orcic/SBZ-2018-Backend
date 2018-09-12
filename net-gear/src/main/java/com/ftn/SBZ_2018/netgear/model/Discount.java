@@ -1,6 +1,5 @@
 package com.ftn.SBZ_2018.netgear.model;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -16,9 +15,7 @@ import javax.validation.constraints.Min;
 @Table(
 	    uniqueConstraints = @UniqueConstraint(columnNames={"discountTypeId", "discObjId"})
 )
-public class Discount implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Discount {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)

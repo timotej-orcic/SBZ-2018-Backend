@@ -12,7 +12,7 @@ public class ProductFactory {
 	public static Product createProduct(ProductDAO productDAO, MultipartFile imageFile, boolean isCreating) throws IOException {
 		Product retObj = new Product();
 		
-		retObj.setName(productDAO.getName());
+		retObj.setType(productDAO.getType());
 		retObj.setManufactorer(productDAO.getManufactorer());
 		retObj.setDescription(productDAO.getDescription());
 		retObj.setPrice(productDAO.getPrice());
@@ -31,7 +31,7 @@ public class ProductFactory {
 	}
 	
 	public static void setProduct(Product product, ProductDAO productDAO, MultipartFile imageFile) throws IOException {
-		product.setName(productDAO.getName());
+		product.setType(productDAO.getType());
 		product.setManufactorer(productDAO.getManufactorer());
 		product.setDescription(productDAO.getDescription());
 		product.setPrice(productDAO.getPrice());

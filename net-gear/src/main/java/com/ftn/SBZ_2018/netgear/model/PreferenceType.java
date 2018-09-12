@@ -7,7 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class DiscountType {
+public class PreferenceType {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -16,9 +16,9 @@ public class DiscountType {
 	@Column(nullable=false, length=50)
 	private String name;
 	
-	public DiscountType() {}
+	public PreferenceType() {}
 
-	public DiscountType(Long id, String name) {
+	public PreferenceType(Long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
@@ -41,6 +41,6 @@ public class DiscountType {
 
 	@Override
 	public String toString() {
-		return "DiscountType [id=" + id + ", name=" + name + "]";
+		return "PreferenceType [id=" + id + ", name=" + name + "]";
 	}
 }

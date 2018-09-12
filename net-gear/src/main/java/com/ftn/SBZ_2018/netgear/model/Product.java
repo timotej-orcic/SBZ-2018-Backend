@@ -1,7 +1,5 @@
 package com.ftn.SBZ_2018.netgear.model;
 
-import java.io.Serializable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,16 +13,14 @@ import javax.validation.constraints.Min;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-public class Product implements Serializable{
-
-	private static final long serialVersionUID = 1L;
+public class Product {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
 	@Column(nullable=false, length=50)
-	private String name;
+	private String type;
 	
 	@Column(nullable=false, length=50)
 	private String manufactorer;
@@ -53,11 +49,11 @@ public class Product implements Serializable{
 	
 	public Product() {}
 
-	public Product(Long id, String name, String manufactorer, String description,
+	public Product(Long id, String type, String manufactorer, String description,
 			Double price, int warrantyInMonths, UploadedImage base64Image, 
 			NetworkSystem netSys, ShoppingCart shopCart) {
 		this.id = id;
-		this.name = name;
+		this.type = type;
 		this.manufactorer = manufactorer;
 		this.description = description;
 		this.price = price;
@@ -75,12 +71,12 @@ public class Product implements Serializable{
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getType() {
+		return type;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getManufactorer() {
@@ -141,7 +137,7 @@ public class Product implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Product [id=" + id + ", name=" + name + ", manufactorer=" + manufactorer + ", description="
+		return "Product [id=" + id + ", type=" + type + ", manufactorer=" + manufactorer + ", description="
 				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths
 				+ "image"+ base64Image.getName() + ", netSys=" + netSys + ", shopCart=" + shopCart + "]";
 	}

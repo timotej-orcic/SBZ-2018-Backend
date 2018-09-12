@@ -2,30 +2,22 @@ package com.ftn.SBZ_2018.netgear.dao;
 
 public class SearchProduct {
 
-	private String productType;
-	
-	private String manufacorer;
-	
-	private Double priceMin;
-	
-	private Double priceMax;
-	
-	private int warrantyInMonthsMin;
-	
-	private int warrantyInMonthsMax;
-	
+	private String productType;	
+	private String manufacorer;	
+	private Double priceMin;	
+	private Double priceMax;	
+	private int warrantyInMonthsMin;	
 	private boolean includeUserPreferences;
 	
 	public SearchProduct() {}
 
 	public SearchProduct(String productType, String manufacorer, Double priceMin, Double priceMax,
-			int warrantyInMonthsMin, int warrantyInMonthsMax, boolean includeUserPreferences) {
+			int warrantyInMonthsMin, boolean includeUserPreferences) {
 		this.productType = productType;
 		this.manufacorer = manufacorer;
 		this.priceMin = priceMin;
 		this.priceMax = priceMax;
 		this.warrantyInMonthsMin = warrantyInMonthsMin;
-		this.warrantyInMonthsMax = warrantyInMonthsMax;
 		this.includeUserPreferences = includeUserPreferences;
 	}
 
@@ -69,14 +61,6 @@ public class SearchProduct {
 		this.warrantyInMonthsMin = warrantyInMonthsMin;
 	}
 
-	public int getWarrantyInMonthsMax() {
-		return warrantyInMonthsMax;
-	}
-
-	public void setWarrantyInMonthsMax(int warrantyInMonthsMax) {
-		this.warrantyInMonthsMax = warrantyInMonthsMax;
-	}
-
 	public boolean isIncludeUserPreferences() {
 		return includeUserPreferences;
 	}
@@ -88,7 +72,7 @@ public class SearchProduct {
 	@Override
 	public String toString() {
 		return "SearchProduct [productType=" + productType + ", manufacorer=" + manufacorer + ", priceMin=" + priceMin
-				+ ", priceMax=" + priceMax + ", warrantyInMonthsMin=" + warrantyInMonthsMin + ", warrantyInMonthsMax="
-				+ warrantyInMonthsMax + ", includeUserPreferences=" + includeUserPreferences + "]";
+				+ ", priceMax=" + priceMax + ", warrantyInMonthsMin=" + warrantyInMonthsMin
+				+ ", includeUserPreferences=" + includeUserPreferences + "]";
 	}
 }

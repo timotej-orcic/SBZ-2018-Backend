@@ -1,16 +1,12 @@
 package com.ftn.SBZ_2018.netgear.userDetails;
 
-import java.io.Serializable;
 import java.util.HashMap;
 
 import org.kie.api.runtime.KieSession;
 
-public class ActiveUser implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class ActiveUser {
 	
 	private String username;
-
 	private HashMap<String, KieSession> kieSessions;
 	
 	public ActiveUser() {}

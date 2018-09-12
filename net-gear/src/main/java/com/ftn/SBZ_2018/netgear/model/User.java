@@ -1,6 +1,5 @@
 package com.ftn.SBZ_2018.netgear.model;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -13,10 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 @Entity
-public class User implements Serializable{
-
-	private static final long serialVersionUID = 1L;
-
+public class User {
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;

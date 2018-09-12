@@ -1,21 +1,24 @@
 package userRules
 
 import com.ftn.SBZ_2018.netgear.model.Product;
-import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
+import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
+import com.ftn.SBZ_2018.netgear.model.Preference;
+import com.ftn.SBZ_2018.netgear.model.User;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
+import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 
 global ProductService productService;
+global ShoppingCartService shoppingCartService;
+global User user;
+global boolean firstPurchase;
 
-rule "SingleProductBasicSearch"
+rule "Single product set preferences start"
 	agenda-group "singleProduct"
+	no-loop true
 	when
-		$sp : SearchProduct
+		$sc : ShoppingCart($products : productsCart)
+		(shoppingCartService.getAllUserCarts(userId)).isEmpty()	
 	then
-end
-
-rule "NetworkSystemBasicSearch"
-	agenda-group "networkSystem"
-	when
-	then
+		firstPurchase = true;
 end
 

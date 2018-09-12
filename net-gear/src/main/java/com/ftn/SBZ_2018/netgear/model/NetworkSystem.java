@@ -1,6 +1,5 @@
 package com.ftn.SBZ_2018.netgear.model;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -14,9 +13,7 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-public class NetworkSystem implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class NetworkSystem {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)

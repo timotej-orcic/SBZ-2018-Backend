@@ -1,0 +1,1 @@
+insert into sbz_2018_db.preference_type values (0, 'manufactorer'),(1, 'price'),(2, 'warranty');

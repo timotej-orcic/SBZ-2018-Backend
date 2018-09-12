@@ -1,15 +1,9 @@
 package com.ftn.SBZ_2018.netgear.dao;
 
-import java.io.Serializable;
-
-public class ResponseWrapper<T> implements Serializable{
-
-	private static final long serialVersionUID = 1L;
+public class ResponseWrapper<T> {
 	
-	private T payload;
-	
-	private String message;
-	
+	private T payload;	
+	private String message;	
 	private boolean success;
 	
 	public ResponseWrapper() {}
@@ -42,5 +36,10 @@ public class ResponseWrapper<T> implements Serializable{
 
 	public void setSuccess(boolean success) {
 		this.success = success;
+	}
+
+	@Override
+	public String toString() {
+		return "ResponseWrapper [payload=" + payload + ", message=" + message + ", success=" + success + "]";
 	}
 }

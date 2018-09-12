@@ -2,6 +2,7 @@ package com.ftn.SBZ_2018.netgear.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -81,8 +83,8 @@ public class WebShopController {
 	
 	@PreAuthorize("hasAuthority('0')")
 	@RequestMapping(value = "findSingleProduct", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<List<Product>> findSingleProduct(@RequestParam(value = "searchProduct", required = true) SearchProduct product, ServletRequest request) {
-		ResponseWrapper<List<Product>> retList = new ResponseWrapper<List<Product>>();
+	public ResponseWrapper<List<Product>> findSingleProduct(@RequestBody SearchProduct product, ServletRequest request) {
+		ResponseWrapper<List<Product>> retObj = new ResponseWrapper<List<Product>>();
 		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 	    String token = httpRequest.getHeader(this.tokenHeader);
@@ -91,21 +93,42 @@ public class WebShopController {
 	    if(username != null) {
 	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
 		    KieSession userSession = activeUser.getKieSessions().get("userSession");
-		    userSession.fireAllRules();
+		    
+		    List<Product> searchList = searchProducts(product);
+		    if(searchList.isEmpty()) {
+		    	
+		    }
+		    else {
+		    	if(product.isIncludeUserPreferences()) {
+		    		userSession.insert(searchList);
+		    		userSession.fireAllRules();
+		    		retObj.setPayload(searchList);
+			    	retObj.setMessage("Advanced search successfull");
+			    	retObj.setSuccess(true);
+		    		
+		    	}
+		    	else {
+		    		retObj.setPayload(searchList);
+			    	retObj.setMessage("Basic search successfull");
+			    	retObj.setSuccess(true);
+		    	}
+		    }		    		   
 	    }
 	    else {
-	    	
+	    	retObj.setPayload(null);
+	    	retObj.setMessage("Invalid username");
+	    	retObj.setSuccess(false);
 	    }
 	    
-		return retList;
+		return retObj;
 	}
 	
 	private List<String> getProductTypes() {
 		List<String> retList = new ArrayList<String>();
 		
 		productService.getAllProducts().forEach(product -> {
-			if(!retList.contains(product.getName())) {
-				retList.add(product.getName());
+			if(!retList.contains(product.getType())) {
+				retList.add(product.getType());
 			}
 		});
 		
@@ -122,5 +145,36 @@ public class WebShopController {
 		});
 		
 		return retList;
+	}
+	
+	private List<Product> searchProducts(SearchProduct searchProduct) {
+		
+		List<Product> result = productService.getAllProducts().stream()
+				.filter(p -> p.getType().equals(searchProduct.getProductType()))
+				.collect(Collectors.toList());
+		
+		if(searchProduct.getManufacorer() != null) {
+			result = result.stream()
+					.filter(p -> p.getManufactorer().equals(searchProduct.getManufacorer()))
+					.collect(Collectors.toList());
+		}
+		
+		if(searchProduct.getPriceMin() != null) {
+			result = result.stream()
+					.filter(p -> p.getPrice() >= searchProduct.getPriceMin())
+					.collect(Collectors.toList());
+		}
+		
+		if(searchProduct.getPriceMax() != null) {
+			result = result.stream()
+					.filter(p -> p.getPrice() <= searchProduct.getPriceMax())
+					.collect(Collectors.toList());
+		}
+		
+		result = result.stream()
+				.filter(p -> p.getWarrantyInMonths() >= searchProduct.getWarrantyInMonthsMin())
+				.collect(Collectors.toList());
+		
+		return result;
 	}
 }
