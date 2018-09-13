@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ftn.SBZ_2018.helpers.WebShopHelper;
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.model.Product;
+import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
 import com.ftn.SBZ_2018.netgear.security.JwtUtils;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
+import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 import com.ftn.SBZ_2018.netgear.userDetails.ActiveUser;
 import com.ftn.SBZ_2018.netgear.userDetails.ActiveUsersStore;
 
@@ -32,6 +35,9 @@ public class WebShopController {
 
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+	private ShoppingCartService shoppingCartService;
 	
 	@Autowired
 	private ActiveUsersStore activeUsersStore;
@@ -56,8 +62,8 @@ public class WebShopController {
 		    KieSession userSession = activeUser.getKieSessions().get("userSession");
 		    
 	    	List<List<String>> payload = new ArrayList<List<String>>();
-	    	payload.add(getProductTypes());
-	    	payload.add(getManufactorers());
+	    	payload.add(WebShopHelper.getProductTypes(productService));
+	    	payload.add(WebShopHelper.getManufactorers(productService));
 		    
 		    if(agenda.equals("singleProduct")) {
 		    	userSession.getAgenda().getAgendaGroup("singleProduct").setFocus();
@@ -94,7 +100,7 @@ public class WebShopController {
 	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
 		    KieSession userSession = activeUser.getKieSessions().get("userSession");
 		    
-		    List<Product> searchList = searchProducts(product);
+		    List<Product> searchList = WebShopHelper.searchProducts(productService, product);
 		    if(searchList.isEmpty()) {
 		    	
 		    }
@@ -123,58 +129,23 @@ public class WebShopController {
 		return retObj;
 	}
 	
-	private List<String> getProductTypes() {
-		List<String> retList = new ArrayList<String>();
+	@PreAuthorize("hasAuthority('0')")
+	@RequestMapping(value = "shop", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<String> shop(@RequestBody ShoppingCart shoppingCart, ServletRequest request) {
+		ResponseWrapper<String> retObj = new ResponseWrapper<String>();
 		
-		productService.getAllProducts().forEach(product -> {
-			if(!retList.contains(product.getType())) {
-				retList.add(product.getType());
-			}
-		});
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+	    String token = httpRequest.getHeader(this.tokenHeader);
+	    String username = jwtUtils.getUsernameFromToken(token);
 		
-		return retList;
-	}
-	
-	private List<String> getManufactorers() {
-		List<String> retList = new ArrayList<String>();
+	    if(username != null) {
+	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
+		    KieSession userSession = activeUser.getKieSessions().get("userSession");
+	    }
+	    else {
+	    	
+	    }
 		
-		productService.getAllProducts().forEach(product -> {
-			if(!retList.contains(product.getManufactorer())) {
-				retList.add(product.getManufactorer());
-			}
-		});
-		
-		return retList;
-	}
-	
-	private List<Product> searchProducts(SearchProduct searchProduct) {
-		
-		List<Product> result = productService.getAllProducts().stream()
-				.filter(p -> p.getType().equals(searchProduct.getProductType()))
-				.collect(Collectors.toList());
-		
-		if(searchProduct.getManufacorer() != null) {
-			result = result.stream()
-					.filter(p -> p.getManufactorer().equals(searchProduct.getManufacorer()))
-					.collect(Collectors.toList());
-		}
-		
-		if(searchProduct.getPriceMin() != null) {
-			result = result.stream()
-					.filter(p -> p.getPrice() >= searchProduct.getPriceMin())
-					.collect(Collectors.toList());
-		}
-		
-		if(searchProduct.getPriceMax() != null) {
-			result = result.stream()
-					.filter(p -> p.getPrice() <= searchProduct.getPriceMax())
-					.collect(Collectors.toList());
-		}
-		
-		result = result.stream()
-				.filter(p -> p.getWarrantyInMonths() >= searchProduct.getWarrantyInMonthsMin())
-				.collect(Collectors.toList());
-		
-		return result;
+		return retObj;
 	}
 }

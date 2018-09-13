@@ -6,19 +6,32 @@ import com.ftn.SBZ_2018.netgear.model.Preference;
 import com.ftn.SBZ_2018.netgear.model.User;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
+import com.ftn.SBZ_2018.netgear.service.PreferenceService;
 
 global ProductService productService;
 global ShoppingCartService shoppingCartService;
+global PreferenceService preferenceService;
 global User user;
 global boolean firstPurchase;
 
 rule "Single product set preferences start"
 	agenda-group "singleProduct"
+	salience 100
 	no-loop true
 	when
-		$sc : ShoppingCart($products : productsCart)
-		(shoppingCartService.getAllUserCarts(userId)).isEmpty()	
+		$p : Product()
+		$bp : List().isEmpty()
 	then
 		firstPurchase = true;
 end
 
+rule "Single product set preferences first purchase"
+	agenda-group "singleProduct"
+	salience 99
+	no-loop true
+	when
+		firstPurchase == true		
+	then
+		for() //preferenceTypeService uzmi svaki
+		insert(new Preference(user, $p.productType, ))
+end
