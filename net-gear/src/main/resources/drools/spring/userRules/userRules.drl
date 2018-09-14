@@ -1,37 +1,50 @@
 package userRules
 
+import java.util.List;
+import java.lang.Boolean;
+import java.lang.Long;
+import java.lang.Double;
+
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
 import com.ftn.SBZ_2018.netgear.model.Preference;
+import com.ftn.SBZ_2018.netgear.model.PreferenceType;
 import com.ftn.SBZ_2018.netgear.model.User;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceService;
+import com.ftn.SBZ_2018.netgear.service.PreferenceTypeService;
 
-global ProductService productService;
-global ShoppingCartService shoppingCartService;
-global PreferenceService preferenceService;
+//global ProductService productService;
+//global ShoppingCartService shoppingCartService;
+//global PreferenceService preferenceService;
+global PreferenceTypeService preferenceTypeService;
 global User user;
-global boolean firstPurchase;
-
-rule "Single product set preferences start"
-	agenda-group "singleProduct"
-	salience 100
-	no-loop true
-	when
-		$p : Product()
-		$bp : List().isEmpty()
-	then
-		firstPurchase = true;
-end
+global Boolean firstPurchase;
 
 rule "Single product set preferences first purchase"
 	agenda-group "singleProduct"
 	salience 99
 	no-loop true
 	when
-		firstPurchase == true		
+		Boolean(booleanValue == true) from firstPurchase
+		$p : Product( $manufactorer: manufactorer, $price: price, $warranty: warrantyInMonths, $type: type )
 	then
-		for() //preferenceTypeService uzmi svaki
-		insert(new Preference(user, $p.productType, ))
+		List<PreferenceType> ptList = preferenceTypeService.getAllPreferenceTypes();
+		int cnt = 0;
+		for(PreferenceType pt : ptList){
+			String pref = pt.getName();
+			String value = "";
+			if(pref.equals("manufactorer")){
+				value = $manufactorer;
+			}
+			else if(pref.equals("price")) {
+				value = "0-" + $price;
+			}
+			else {
+				value = "0-" + $warranty;
+			}
+			insert(new Preference(new Long(cnt), user, $type, pt, value, new Double(1)));
+			cnt++;	
+		}	
 end

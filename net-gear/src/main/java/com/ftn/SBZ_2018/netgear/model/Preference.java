@@ -39,11 +39,13 @@ public class Preference {
 	
 	public Preference() {}
 
-	public Preference(Long id, User user, String productType, PreferenceType preferenceType, @Min(0) @Max(1) Double percentage) {
+	public Preference(Long id, User user, String productType, PreferenceType preferenceType,
+			String value ,@Min(0) @Max(1) Double percentage) {
 		this.id = id;
 		this.user = user;
 		this.productType = productType;
 		this.preferenceType = preferenceType;
+		this.value = value;
 		this.percentage = percentage;
 	}
 
@@ -79,6 +81,14 @@ public class Preference {
 		this.preferenceType = preferenceType;
 	}
 
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
 	public Double getPercentage() {
 		return percentage;
 	}
@@ -90,6 +100,6 @@ public class Preference {
 	@Override
 	public String toString() {
 		return "Preference [id=" + id + ", user=" + user + ", productType=" + productType + ", preferenceType="
-				+ preferenceType + ", percentage=" + percentage + "]";
+				+ preferenceType + ", value=" + value + ", percentage=" + percentage + "]";
 	}
 }

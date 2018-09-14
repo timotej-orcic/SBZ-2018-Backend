@@ -40,10 +40,6 @@ public class Product {
 	private UploadedImage base64Image;
 	
 	@ManyToOne
-	@JsonBackReference(value="netSys")
-	private NetworkSystem netSys;
-	
-	@ManyToOne
 	@JsonBackReference(value="shopCart-product")
 	private ShoppingCart shopCart;
 	
@@ -51,7 +47,7 @@ public class Product {
 
 	public Product(Long id, String type, String manufactorer, String description,
 			Double price, int warrantyInMonths, UploadedImage base64Image, 
-			NetworkSystem netSys, ShoppingCart shopCart) {
+			ShoppingCart shopCart) {
 		this.id = id;
 		this.type = type;
 		this.manufactorer = manufactorer;
@@ -59,7 +55,6 @@ public class Product {
 		this.price = price;
 		this.warrantyInMonths = warrantyInMonths;
 		this.base64Image = base64Image;
-		this.netSys = netSys;
 		this.shopCart = shopCart;
 	}
 
@@ -119,14 +114,6 @@ public class Product {
 		this.base64Image = base64Image;
 	}
 
-	public NetworkSystem getNetSys() {
-		return netSys;
-	}
-
-	public void setNetSys(NetworkSystem netSys) {
-		this.netSys = netSys;
-	}
-
 	public ShoppingCart getShopCart() {
 		return shopCart;
 	}
@@ -139,6 +126,6 @@ public class Product {
 	public String toString() {
 		return "Product [id=" + id + ", type=" + type + ", manufactorer=" + manufactorer + ", description="
 				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths
-				+ "image"+ base64Image.getName() + ", netSys=" + netSys + ", shopCart=" + shopCart + "]";
+				+ "image"+ base64Image.getName() + ", shopCart=" + shopCart + "]";
 	}
 }

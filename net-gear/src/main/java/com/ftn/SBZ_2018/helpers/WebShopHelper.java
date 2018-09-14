@@ -43,9 +43,9 @@ public class WebShopHelper {
 				.filter(p -> p.getType().equals(searchProduct.getProductType()))
 				.collect(Collectors.toList());
 		
-		if(searchProduct.getManufacorer() != null) {
+		if(searchProduct.getManufactorer() != "") {
 			result = result.stream()
-					.filter(p -> p.getManufactorer().equals(searchProduct.getManufacorer()))
+					.filter(p -> p.getManufactorer().equals(searchProduct.getManufactorer()))
 					.collect(Collectors.toList());
 		}
 		

@@ -3,7 +3,7 @@ package com.ftn.SBZ_2018.netgear.dao;
 public class SearchProduct {
 
 	private String productType;	
-	private String manufacorer;	
+	private String manufactorer;
 	private Double priceMin;	
 	private Double priceMax;	
 	private int warrantyInMonthsMin;	
@@ -11,10 +11,10 @@ public class SearchProduct {
 	
 	public SearchProduct() {}
 
-	public SearchProduct(String productType, String manufacorer, Double priceMin, Double priceMax,
+	public SearchProduct(String productType, String manufactorer, Double priceMin, Double priceMax,
 			int warrantyInMonthsMin, boolean includeUserPreferences) {
 		this.productType = productType;
-		this.manufacorer = manufacorer;
+		this.manufactorer = manufactorer;
 		this.priceMin = priceMin;
 		this.priceMax = priceMax;
 		this.warrantyInMonthsMin = warrantyInMonthsMin;
@@ -29,12 +29,12 @@ public class SearchProduct {
 		this.productType = productType;
 	}
 
-	public String getManufacorer() {
-		return manufacorer;
+	public String getManufactorer() {
+		return manufactorer;
 	}
 
-	public void setManufacorer(String manufacorer) {
-		this.manufacorer = manufacorer;
+	public void setManufactorer(String manufactorer) {
+		this.manufactorer = manufactorer;
 	}
 
 	public Double getPriceMin() {
@@ -71,7 +71,7 @@ public class SearchProduct {
 
 	@Override
 	public String toString() {
-		return "SearchProduct [productType=" + productType + ", manufacorer=" + manufacorer + ", priceMin=" + priceMin
+		return "SearchProduct [productType=" + productType + ", manufactorer=" + manufactorer + ", priceMin=" + priceMin
 				+ ", priceMax=" + priceMax + ", warrantyInMonthsMin=" + warrantyInMonthsMin
 				+ ", includeUserPreferences=" + includeUserPreferences + "]";
 	}

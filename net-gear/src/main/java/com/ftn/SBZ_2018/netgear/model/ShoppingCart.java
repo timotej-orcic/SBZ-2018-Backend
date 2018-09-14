@@ -25,10 +25,7 @@ public class ShoppingCart {
 	private Date salesDate;
 	
 	@OneToMany(mappedBy="shopCart", fetch=FetchType.EAGER)
-	private Set<Product> productsCart;
-	
-	@OneToMany(mappedBy="shopCart", fetch=FetchType.EAGER)
-	private Set<NetworkSystem> netSystemsCart;
+	private Set<Product> productsCart;	
 	
 	@ManyToOne
 	@JsonBackReference(value="user")
@@ -36,12 +33,10 @@ public class ShoppingCart {
 	
 	public ShoppingCart() {}
 
-	public ShoppingCart(Long id, Date salesDate, Set<Product> productsCart,
-			Set<NetworkSystem> netSystemsCart, User user) {		
+	public ShoppingCart(Long id, Date salesDate, Set<Product> productsCart, User user) {		
 		this.id = id;
 		this.salesDate = salesDate;
 		this.productsCart = productsCart;
-		this.netSystemsCart = netSystemsCart;
 		this.user = user;
 	}
 
@@ -69,14 +64,6 @@ public class ShoppingCart {
 		this.productsCart = productsCart;
 	}
 
-	public Set<NetworkSystem> getNetSystemsCart() {
-		return netSystemsCart;
-	}
-
-	public void setNetSystemsCart(Set<NetworkSystem> netSystemsCart) {
-		this.netSystemsCart = netSystemsCart;
-	}
-
 	public User getUser() {
 		return user;
 	}
@@ -88,6 +75,6 @@ public class ShoppingCart {
 	@Override
 	public String toString() {
 		return "ShoppingCart [id=" + id + ", salesDate=" + salesDate + ", productsCart=" + productsCart
-				+ ", netSystemsCart=" + netSystemsCart + ", user=" + user + "]";
+				+ ", user=" + user + "]";
 	}
 }

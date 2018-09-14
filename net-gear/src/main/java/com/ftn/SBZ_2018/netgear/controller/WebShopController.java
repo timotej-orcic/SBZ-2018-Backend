@@ -2,12 +2,12 @@ package com.ftn.SBZ_2018.netgear.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.FactHandle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -23,9 +23,12 @@ import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
+import com.ftn.SBZ_2018.netgear.model.User;
 import com.ftn.SBZ_2018.netgear.security.JwtUtils;
+import com.ftn.SBZ_2018.netgear.service.PreferenceTypeService;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
+import com.ftn.SBZ_2018.netgear.service.UserService;
 import com.ftn.SBZ_2018.netgear.userDetails.ActiveUser;
 import com.ftn.SBZ_2018.netgear.userDetails.ActiveUsersStore;
 
@@ -40,6 +43,12 @@ public class WebShopController {
 	private ShoppingCartService shoppingCartService;
 	
 	@Autowired
+	private PreferenceTypeService preferenceTypeService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
 	private ActiveUsersStore activeUsersStore;
 	
 	@Autowired
@@ -49,40 +58,17 @@ public class WebShopController {
     private String tokenHeader;
 	
 	@PreAuthorize("hasAuthority('0')")
-	@RequestMapping(value = "setAgenda", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<List<List<String>>> setAgenda(@RequestParam(value = "agenda", required = true) String agenda, ServletRequest request) {
+	@RequestMapping(value = "getProductParams", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<List<List<String>>> getProductParams() {
 		ResponseWrapper<List<List<String>>> retObj = new ResponseWrapper<List<List<String>>>();
-		
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
-	    String token = httpRequest.getHeader(this.tokenHeader);
-	    String username = jwtUtils.getUsernameFromToken(token);
-		
-	    if(username != null) {
-		    ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
-		    KieSession userSession = activeUser.getKieSessions().get("userSession");
-		    
-	    	List<List<String>> payload = new ArrayList<List<String>>();
-	    	payload.add(WebShopHelper.getProductTypes(productService));
-	    	payload.add(WebShopHelper.getManufactorers(productService));
-		    
-		    if(agenda.equals("singleProduct")) {
-		    	userSession.getAgenda().getAgendaGroup("singleProduct").setFocus();
-		    	retObj.setPayload(payload);
-		    	retObj.setMessage("Single products agenda is set");
-		    	retObj.setSuccess(true);
-		    }
-		    else {
-		    	userSession.getAgenda().getAgendaGroup("networkSystem").setFocus();
-		    	retObj.setPayload(payload);
-		    	retObj.setMessage("Network systems agenda is set");
-		    	retObj.setSuccess(true);
-		    }	
-	    }   
-	    else {
-	    	retObj.setPayload(null);
-	    	retObj.setMessage("Invalid username");
-	    	retObj.setSuccess(false);
-	    }
+				    
+		List<List<String>> payload = new ArrayList<List<String>>();
+		payload.add(WebShopHelper.getProductTypes(productService));
+		payload.add(WebShopHelper.getManufactorers(productService));		    
+	
+		retObj.setPayload(payload);
+		retObj.setMessage("Product params loaded successfully");
+		retObj.setSuccess(true);
 	    
 		return retObj;
 	}
@@ -139,11 +125,32 @@ public class WebShopController {
 	    String username = jwtUtils.getUsernameFromToken(token);
 		
 	    if(username != null) {
+		    User user = userService.findByUsername(username);
 	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
 		    KieSession userSession = activeUser.getKieSessions().get("userSession");
+		    
+		    userSession.getAgenda().getAgendaGroup("singleProduct").setFocus();
+		    userSession.setGlobal("preferenceTypeService", preferenceTypeService);
+		    userSession.setGlobal("user", user);
+		    
+		    shoppingCart.getProductsCart().forEach(product -> {
+			    userSession.setGlobal("firstPurchase", false);
+		    	userSession.insert(product);
+		    	userSession.fireAllRules();
+		    });
+		    
+		    for (FactHandle factHandle : userSession.getFactHandles()) {
+		    	userSession.delete(factHandle);
+	        }
+		    
+		    retObj.setPayload("");
+	    	retObj.setMessage("Shopping suceeded");
+	    	retObj.setSuccess(true);
 	    }
 	    else {
-	    	
+	    	retObj.setPayload(null);
+	    	retObj.setMessage("Invalid username");
+	    	retObj.setSuccess(false);
 	    }
 		
 		return retObj;
