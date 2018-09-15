@@ -32,6 +32,10 @@ public class Preference {
 	@Column(nullable=false, length=50)
 	private String value;
 	
+	@Min(1)
+	@Column(nullable=false)
+	private int productsCount;
+	
 	@Min(0)
 	@Max(1)
 	@Column(nullable=false)
@@ -39,13 +43,14 @@ public class Preference {
 	
 	public Preference() {}
 
-	public Preference(Long id, User user, String productType, PreferenceType preferenceType,
-			String value ,@Min(0) @Max(1) Double percentage) {
+	public Preference(Long id, User user, String productType, PreferenceType preferenceType, String value,
+			@Min(1) int productsCount, @Min(0) @Max(1) Double percentage) {
 		this.id = id;
 		this.user = user;
 		this.productType = productType;
 		this.preferenceType = preferenceType;
 		this.value = value;
+		this.productsCount = productsCount;
 		this.percentage = percentage;
 	}
 
@@ -89,6 +94,14 @@ public class Preference {
 		this.value = value;
 	}
 
+	public int getProductsCount() {
+		return productsCount;
+	}
+
+	public void setProductsCount(int productsCount) {
+		this.productsCount = productsCount;
+	}
+
 	public Double getPercentage() {
 		return percentage;
 	}
@@ -100,6 +113,7 @@ public class Preference {
 	@Override
 	public String toString() {
 		return "Preference [id=" + id + ", user=" + user + ", productType=" + productType + ", preferenceType="
-				+ preferenceType + ", value=" + value + ", percentage=" + percentage + "]";
+				+ preferenceType + ", value=" + value + ", productsCount=" + productsCount + ", percentage="
+				+ percentage + "]";
 	}
 }

@@ -18,13 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ftn.SBZ_2018.helpers.WebShopHelper;
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
+import com.ftn.SBZ_2018.netgear.helpers.WebShopHelper;
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
 import com.ftn.SBZ_2018.netgear.model.User;
 import com.ftn.SBZ_2018.netgear.security.JwtUtils;
+import com.ftn.SBZ_2018.netgear.service.PreferenceService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceTypeService;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
@@ -41,6 +42,9 @@ public class WebShopController {
 	
 	@Autowired
 	private ShoppingCartService shoppingCartService;
+	
+	@Autowired
+	private PreferenceService preferenceService;
 	
 	@Autowired
 	private PreferenceTypeService preferenceTypeService;
@@ -133,9 +137,8 @@ public class WebShopController {
 		    userSession.setGlobal("preferenceTypeService", preferenceTypeService);
 		    userSession.setGlobal("user", user);
 		    
-		    shoppingCart.getProductsCart().forEach(product -> {
-			    userSession.setGlobal("firstPurchase", false);
-		    	userSession.insert(product);
+		    shoppingCart.getItems().forEach(item -> {
+		    	userSession.insert(item);
 		    	userSession.fireAllRules();
 		    });
 		    

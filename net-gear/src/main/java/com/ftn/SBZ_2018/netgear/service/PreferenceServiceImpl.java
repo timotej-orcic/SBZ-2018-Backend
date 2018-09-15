@@ -47,4 +47,20 @@ public class PreferenceServiceImpl implements PreferenceService {
 		preferenceRepo.deleteById(id);
 	}
 
+	@Override
+	public List<Preference> getAllUserPreferencesByProdType(Long userId, String productType) {
+		return this.getAllUserPreferences(userId).stream()
+				.filter(p -> p.getProductType().equals(productType))
+				.collect(Collectors.toList());			
+	}
+
+	@Override
+	public List<Preference> getAllUserPreferencesByProdTypeAndPrefType(Long userId, String productType,
+			String prefType) {
+		return this.getAllUserPreferences(userId).stream()
+				.filter(p -> p.getProductType().equals(productType)
+					&& p.getPreferenceType().getName().equals(prefType))
+				.collect(Collectors.toList());
+	}
+
 }

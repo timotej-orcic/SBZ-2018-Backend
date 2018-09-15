@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -34,6 +35,7 @@ public class Product {
 	
 	@Column(nullable=false)
 	@Min(0)
+	@Max(60)
 	private int warrantyInMonths;
 	
 	@OneToOne(cascade = CascadeType.ALL)

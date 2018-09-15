@@ -1,15 +1,21 @@
 package userRules
 
 import java.util.List;
+import java.util.Optional;
+
 import java.lang.Boolean;
 import java.lang.Long;
 import java.lang.Double;
 
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
+import com.ftn.SBZ_2018.netgear.model.ShoppingCartItem;
+import com.ftn.SBZ_2018.netgear.model.Discount;
+import com.ftn.SBZ_2018.netgear.model.DiscountType;
 import com.ftn.SBZ_2018.netgear.model.Preference;
 import com.ftn.SBZ_2018.netgear.model.PreferenceType;
 import com.ftn.SBZ_2018.netgear.model.User;
+
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceService;
@@ -17,34 +23,25 @@ import com.ftn.SBZ_2018.netgear.service.PreferenceTypeService;
 
 //global ProductService productService;
 //global ShoppingCartService shoppingCartService;
-//global PreferenceService preferenceService;
+global PreferenceService preferenceService;
 global PreferenceTypeService preferenceTypeService;
 global User user;
-global Boolean firstPurchase;
 
-rule "Single product set preferences first purchase"
+rule "Single product calculate preferences 'manufactorer'"
 	agenda-group "singleProduct"
-	salience 99
+	salience 100
 	no-loop true
 	when
-		Boolean(booleanValue == true) from firstPurchase
-		$p : Product( $manufactorer: manufactorer, $price: price, $warranty: warrantyInMonths, $type: type )
+		$i : ShoppingCartItem( $product: product )
 	then
-		List<PreferenceType> ptList = preferenceTypeService.getAllPreferenceTypes();
-		int cnt = 0;
-		for(PreferenceType pt : ptList){
-			String pref = pt.getName();
-			String value = "";
-			if(pref.equals("manufactorer")){
-				value = $manufactorer;
-			}
-			else if(pref.equals("price")) {
-				value = "0-" + $price;
-			}
-			else {
-				value = "0-" + $warranty;
-			}
-			insert(new Preference(new Long(cnt), user, $type, pt, value, new Double(1)));
-			cnt++;	
-		}	
+		Optional<PreferenceType> pType = preferenceTypeService.findByName("manufactorer");
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "manufactorer");
+		if(pList.isEmpty()){
+			pType.ifPresent(pt -> {
+				insert(new Preference(new Long(-1), user, $product.getType(), pt, $product.getManufactorer(), $i.getQuantity(), new Double(1)));
+			});				
+		}
+		else{
+			insert(pList.get(0));
+		}
 end

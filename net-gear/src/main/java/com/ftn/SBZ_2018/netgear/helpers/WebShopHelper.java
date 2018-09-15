@@ -1,4 +1,4 @@
-package com.ftn.SBZ_2018.helpers;
+package com.ftn.SBZ_2018.netgear.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
+import com.ftn.SBZ_2018.netgear.model.ShoppingCartItem;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 
@@ -68,15 +69,15 @@ public class WebShopHelper {
 		return result;
 	}
 	
-	public static List<Product> getAllUserShoppedProductsByType(ShoppingCartService shoppingCartService, Long userId, String productType) {
+	public static List<ShoppingCartItem> getAllUserShoppedItemsByType(ShoppingCartService shoppingCartService, Long userId, String productType) {
 		List<ShoppingCart> myCarts = shoppingCartService.getAllUserCarts(userId);
-		List<Product> result = new ArrayList<Product>();
+		List<ShoppingCartItem> result = new ArrayList<ShoppingCartItem>();
 		
 		myCarts.forEach(cart -> {
-			Set<Product> products = cart.getProductsCart();
-			products.forEach(product -> {
-				if(product.getType().equals(productType)) {
-					result.add(product);
+			Set<ShoppingCartItem> items = cart.getItems();
+			items.forEach(item -> {
+				if(item.getProduct().getType().equals(productType)) {
+					result.add(item);
 				}
 			});
 		});

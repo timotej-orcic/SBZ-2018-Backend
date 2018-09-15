@@ -24,8 +24,8 @@ public class ShoppingCart {
 	@Column(nullable=false)
 	private Date salesDate;
 	
-	@OneToMany(mappedBy="shopCart", fetch=FetchType.EAGER)
-	private Set<Product> productsCart;	
+	@OneToMany(mappedBy="shoppingCart", fetch=FetchType.EAGER)
+	private Set<ShoppingCartItem> items;
 	
 	@ManyToOne
 	@JsonBackReference(value="user")
@@ -33,10 +33,10 @@ public class ShoppingCart {
 	
 	public ShoppingCart() {}
 
-	public ShoppingCart(Long id, Date salesDate, Set<Product> productsCart, User user) {		
+	public ShoppingCart(Long id, Date salesDate, Set<ShoppingCartItem> items, User user) {		
 		this.id = id;
 		this.salesDate = salesDate;
-		this.productsCart = productsCart;
+		this.items = items;
 		this.user = user;
 	}
 
@@ -56,12 +56,12 @@ public class ShoppingCart {
 		this.salesDate = salesDate;
 	}
 
-	public Set<Product> getProductsCart() {
-		return productsCart;
+	public Set<ShoppingCartItem> getItems() {
+		return items;
 	}
 
-	public void setProductsCart(Set<Product> productsCart) {
-		this.productsCart = productsCart;
+	public void setItems(Set<ShoppingCartItem> items) {
+		this.items = items;
 	}
 
 	public User getUser() {
@@ -74,7 +74,7 @@ public class ShoppingCart {
 
 	@Override
 	public String toString() {
-		return "ShoppingCart [id=" + id + ", salesDate=" + salesDate + ", productsCart=" + productsCart
+		return "ShoppingCart [id=" + id + ", salesDate=" + salesDate + ", items=" + items
 				+ ", user=" + user + "]";
 	}
 }
