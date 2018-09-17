@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
+import com.ftn.SBZ_2018.netgear.dao.ShoppingCartFactory;
+import com.ftn.SBZ_2018.netgear.dao.ShoppingCartItemDAO;
 import com.ftn.SBZ_2018.netgear.helpers.WebShopHelper;
+import com.ftn.SBZ_2018.netgear.model.Preference;
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
 import com.ftn.SBZ_2018.netgear.model.User;
@@ -51,6 +54,9 @@ public class WebShopController {
 	
 	@Autowired
 	private UserService userService;
+	
+	List<Preference> list = new ArrayList<Preference>();
+	int sum = list.stream().mapToInt(i -> i.getProductsCount()).sum();
 	
 	@Autowired
 	private ActiveUsersStore activeUsersStore;
@@ -121,7 +127,7 @@ public class WebShopController {
 	
 	@PreAuthorize("hasAuthority('0')")
 	@RequestMapping(value = "shop", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<String> shop(@RequestBody ShoppingCart shoppingCart, ServletRequest request) {
+	public ResponseWrapper<String> shop(@RequestBody List<ShoppingCartItemDAO> shoppingCart, ServletRequest request) {
 		ResponseWrapper<String> retObj = new ResponseWrapper<String>();
 		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -133,11 +139,14 @@ public class WebShopController {
 	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
 		    KieSession userSession = activeUser.getKieSessions().get("userSession");
 		    
+		    ShoppingCart myCart = ShoppingCartFactory.createCart(productService, shoppingCart);
+		    
 		    userSession.getAgenda().getAgendaGroup("singleProduct").setFocus();
+		    userSession.setGlobal("preferenceService", preferenceService);
 		    userSession.setGlobal("preferenceTypeService", preferenceTypeService);
 		    userSession.setGlobal("user", user);
 		    
-		    shoppingCart.getItems().forEach(item -> {
+		    myCart.getItems().forEach(item -> {
 		    	userSession.insert(item);
 		    	userSession.fireAllRules();
 		    });

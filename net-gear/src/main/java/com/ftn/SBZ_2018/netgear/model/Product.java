@@ -38,6 +38,10 @@ public class Product {
 	@Max(60)
 	private int warrantyInMonths;
 	
+	@Column(nullable=false)
+	@Min(0)
+	private int lagerQuantity;
+	
 	@OneToOne(cascade = CascadeType.ALL)
 	private UploadedImage base64Image;
 	
@@ -48,14 +52,15 @@ public class Product {
 	public Product() {}
 
 	public Product(Long id, String type, String manufactorer, String description,
-			Double price, int warrantyInMonths, UploadedImage base64Image, 
-			ShoppingCart shopCart) {
+			Double price, int warrantyInMonths, int lagerQuantity,
+			UploadedImage base64Image, ShoppingCart shopCart) {
 		this.id = id;
 		this.type = type;
 		this.manufactorer = manufactorer;
 		this.description = description;
 		this.price = price;
 		this.warrantyInMonths = warrantyInMonths;
+		this.lagerQuantity = lagerQuantity;
 		this.base64Image = base64Image;
 		this.shopCart = shopCart;
 	}
@@ -108,6 +113,14 @@ public class Product {
 		this.warrantyInMonths = warrantyInMonths;
 	}
 
+	public int getLagerQuantity() {
+		return lagerQuantity;
+	}
+
+	public void setLagerQuantity(int lagerQuantity) {
+		this.lagerQuantity = lagerQuantity;
+	}
+
 	public UploadedImage getBase64Image() {
 		return base64Image;
 	}
@@ -127,7 +140,7 @@ public class Product {
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", type=" + type + ", manufactorer=" + manufactorer + ", description="
-				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths
-				+ "image"+ base64Image.getName() + ", shopCart=" + shopCart + "]";
+				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths + ", lagerQuantity="
+				+ lagerQuantity + ", base64Image=" + base64Image + ", shopCart=" + shopCart + "]";
 	}
 }

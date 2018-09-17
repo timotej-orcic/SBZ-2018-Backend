@@ -8,16 +8,19 @@ public class ProductDAO {
 	private String description;
 	private Double price;
 	private int warrantyInMonths;
+	private int lagerQuantity;
 	
 	public ProductDAO() {}
 
-	public ProductDAO(Long id, String type, String manufactorer, String description, Double price, int warrantyInMonths) {
+	public ProductDAO(Long id, String type, String manufactorer, String description,
+			Double price, int warrantyInMonths, int lagerQuantity) {
 		this.id = id;
 		this.type = type;
 		this.manufactorer = manufactorer;
 		this.description = description;
 		this.price = price;
 		this.warrantyInMonths = warrantyInMonths;
+		this.lagerQuantity = lagerQuantity;
 	}
 
 	public Long getId() {
@@ -68,9 +71,18 @@ public class ProductDAO {
 		this.warrantyInMonths = warrantyInMonths;
 	}
 
+	public int getLagerQuantity() {
+		return lagerQuantity;
+	}
+
+	public void setLagerQuantity(int lagerQuantity) {
+		this.lagerQuantity = lagerQuantity;
+	}
+
 	@Override
 	public String toString() {
-		return "ProductDAO [id= " +  id + ", type=" + type + ", manufactorer=" + manufactorer + ", description=" + description
-				+ ", price=" + price + ", warrantyInMonths=" + warrantyInMonths +"]";
+		return "ProductDAO [id=" + id + ", type=" + type + ", manufactorer=" + manufactorer + ", description="
+				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths + ", lagerQuantity="
+				+ lagerQuantity + "]";
 	}
 }

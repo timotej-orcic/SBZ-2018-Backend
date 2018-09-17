@@ -17,6 +17,7 @@ public class ProductFactory {
 		retObj.setDescription(productDAO.getDescription());
 		retObj.setPrice(productDAO.getPrice());
 		retObj.setWarrantyInMonths(productDAO.getWarrantyInMonths());
+		retObj.setLagerQuantity(productDAO.getLagerQuantity());
 		
 		if(isCreating) {
 			UploadedImage image = new UploadedImage();
@@ -36,6 +37,7 @@ public class ProductFactory {
 		product.setDescription(productDAO.getDescription());
 		product.setPrice(productDAO.getPrice());
 		product.setWarrantyInMonths(productDAO.getWarrantyInMonths());
+		product.setLagerQuantity(productDAO.getLagerQuantity());
 		
 		if(!imageFile.getOriginalFilename().equals("")) {
 			product.getBase64Image().setName(imageFile.getOriginalFilename());

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.lang.Boolean;
 import java.lang.Long;
 import java.lang.Double;
+import java.lang.Integer;
 
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
@@ -21,13 +22,18 @@ import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceTypeService;
 
+declare trait SumTrait 
+	sum : int
+	percentage: double
+end
+
 //global ProductService productService;
 //global ShoppingCartService shoppingCartService;
 global PreferenceService preferenceService;
 global PreferenceTypeService preferenceTypeService;
 global User user;
 
-rule "Single product calculate preferences 'manufactorer'"
+rule "Single product calculate preferences 'manufactorer' start"
 	agenda-group "singleProduct"
 	salience 100
 	no-loop true
@@ -39,9 +45,141 @@ rule "Single product calculate preferences 'manufactorer'"
 		if(pList.isEmpty()){
 			pType.ifPresent(pt -> {
 				insert(new Preference(new Long(-1), user, $product.getType(), pt, $product.getManufactorer(), $i.getQuantity(), new Double(1)));
+			});		
+		}
+		else{
+			Preference myPref = pList.stream().filter(p -> p.getValue().equals($product.getManufactorer())).findFirst().orElse(null);
+			if(myPref == null){
+				pType.ifPresent(pt -> {
+					insert(new Preference(new Long(-1), user, $product.getType(), pt, $product.getManufactorer(), $i.getQuantity(), new Double(1)));
+				});
+			}
+			else{
+				int prodCnt = myPref.getProductsCount() + $i.getQuantity();
+				myPref.setProductsCount(prodCnt);
+				insert(myPref);
+			}
+		}
+end
+
+rule "Single product edit existing preference 'manufactorer'"
+	agenda-group "singleProduct"
+	salience 99
+	no-loop true
+	when
+		$p : Preference( $prodType: productType, $prefType: preferenceType, (id != -1), (preferenceType.name == "manufactorer"))
+		$i : ShoppingCartItem( $product: product )
+	then
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "manufactorer");
+		if(!pList.isEmpty()){
+			int sum = pList.stream().mapToInt(i -> i.getProductsCount()).sum();
+			pList.forEach(p -> {
+				Double percentage = (double) p.getProductsCount() / sum;
+				p.setPercentage(percentage);
+				preferenceService.insertPreference(p);
+			});
+		}
+end
+
+rule "Single product add new preference 'manufactorer'"
+agenda-group "singleProduct"
+	salience 99
+	no-loop true
+	when
+		$p : Preference( $prodType: productType, $prefType: preferenceType, (id == -1), (preferenceType.name == "manufactorer"))
+		$i : ShoppingCartItem( $product: product )
+	then
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "manufactorer");
+		if(!pList.isEmpty()){
+			pList.add($p);
+			int sum = pList.stream().mapToInt(i -> i.getProductsCount()).sum();
+			pList.forEach(p -> {
+				Double percentage = (double) p.getProductsCount() / sum;
+				p.setPercentage(percentage);
+				preferenceService.insertPreference(p);
+			});
+		}
+		else {
+			preferenceService.insertPreference($p);
+		}
+end
+
+rule "Single product calculate preferences 'price 0-100' start"
+	agenda-group "singleProduct"
+	salience 100
+	no-loop true
+	when
+		$i : ShoppingCartItem( $product: product, (product.price < 100) )
+	then
+		Optional<PreferenceType> pType = preferenceTypeService.findByName("price");
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "price");
+		Optional<Preference> pref = pList.stream().filter(p -> p.getValue().equals("0-100")).findFirst();		
+		if(!pref.isPresent()){
+			pType.ifPresent(pt -> {
+				insert(new Preference(new Long(-1), user, $product.getType(), pt, "0-100", $i.getQuantity(), new Double(1)));
 			});				
 		}
 		else{
-			insert(pList.get(0));
+			insert(pref);
+		}
+end
+
+rule "Single product calculate preferences 'price 100-500' start"
+	agenda-group "singleProduct"
+	salience 100
+	no-loop true
+	when
+		$i : ShoppingCartItem( $product: product, (100 <= product.price && product.price < 500) )
+	then
+		Optional<PreferenceType> pType = preferenceTypeService.findByName("price");
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "price");
+		Optional<Preference> pref = pList.stream().filter(p -> p.getValue().equals("100-500")).findFirst();		
+		if(!pref.isPresent()){
+			pType.ifPresent(pt -> {
+				insert(new Preference(new Long(-1), user, $product.getType(), pt, "100-500", $i.getQuantity(), new Double(1)));
+			});				
+		}
+		else{
+			insert(pref);
+		}
+end
+
+rule "Single product calculate preferences 'price 500-1000' start"
+	agenda-group "singleProduct"
+	salience 100
+	no-loop true
+	when
+		$i : ShoppingCartItem( $product: product, (500 <= product.price && product.price < 1000) )
+	then
+		Optional<PreferenceType> pType = preferenceTypeService.findByName("price");
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "price");
+		Optional<Preference> pref = pList.stream().filter(p -> p.getValue().equals("500-1000")).findFirst();		
+		if(!pref.isPresent()){
+			pType.ifPresent(pt -> {
+				insert(new Preference(new Long(-1), user, $product.getType(), pt, "500-1000", $i.getQuantity(), new Double(1)));
+			});				
+		}
+		else{
+			insert(pref);
+		}
+end
+
+rule "Single product calculate preferences 'price 1000+' start"
+	agenda-group "singleProduct"
+	salience 100
+	no-loop true
+	when
+		$i : ShoppingCartItem( $product: product, (product.price >= 1000) )
+	then
+		Optional<PreferenceType> pType = preferenceTypeService.findByName("price");
+		List<Preference> pList = preferenceService.getAllUserPreferencesByProdTypeAndPrefType(user.getId(), $product.getType(), "price");
+		Optional<Preference> pref = pList.stream().filter(p -> p.getValue().equals("1000+")).findFirst();		
+		if(!pref.isPresent()){
+			pType.ifPresent(pt -> {
+				insert(new Preference(new Long(-1), user, $product.getType(), pt, "1000+", $i.getQuantity(), new Double(1)));
+			});				
+		}
+		else{
+			insert(pref);
 		}
 end
