@@ -1,6 +1,7 @@
 package com.ftn.SBZ_2018.netgear.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public List<Product> getAllProductsByType(String productType) {
+		return productRepo.findAll().stream()
+				.filter(p -> p.getType().equals(productType))
+				.collect(Collectors.toList());
+	}
+	
+	@Override
 	public Product insertProduct(Product product) {
 		return productRepo.save(product);
 	}
@@ -38,5 +46,4 @@ public class ProductServiceImpl implements ProductService {
 	public void deleteProduct(Long id) {
 		productRepo.deleteById(id);
 	}
-
 }

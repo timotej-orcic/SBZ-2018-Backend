@@ -34,8 +34,9 @@ public class ShoppingCartItem {
 	@Column(nullable=false)
 	private Double price;
 	
+	@JsonBackReference
 	@ManyToOne
-    @JoinColumn(name="shoppingCart_id", nullable=false)
+    @JoinColumn(name="shoppingCart_id", nullable=false, insertable=true)
     private ShoppingCart shoppingCart;
 	
 	public ShoppingCartItem() {}

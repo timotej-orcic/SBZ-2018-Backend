@@ -21,6 +21,7 @@ public class ShoppingCartFactory {
 			item.setQuantity(dao.getQuantity());
 			item.setProduct(p);
 			item.setPrice(dao.getPrice());
+			item.setShoppingCart(retObj);
 			itemsList.add(item);
 		});
 		retObj.setItems(itemsList);

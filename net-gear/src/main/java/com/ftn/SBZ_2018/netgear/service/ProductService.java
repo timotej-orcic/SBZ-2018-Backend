@@ -8,6 +8,7 @@ public interface ProductService {
 
 	public Product findById(Long id);
 	public List<Product> getAllProducts();
+	public List<Product> getAllProductsByType(String productType);
 	public Product insertProduct(Product product);
 	public Product updateProduct(Product product);
 	public void deleteProduct(Long id);

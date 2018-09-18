@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ftn.SBZ_2018.netgear.dao.SearchData;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
@@ -14,7 +15,7 @@ import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 
 public class WebShopHelper {
 
-	public static List<String> getProductTypes(ProductService productService) {
+	/*public static List<String> getProductTypes(ProductService productService) {
 		List<String> retList = new ArrayList<String>();
 		
 		productService.getAllProducts().forEach(product -> {
@@ -36,6 +37,31 @@ public class WebShopHelper {
 		});
 		
 		return retList;
+	}*/
+	
+	public static List<SearchData> getSearchData(ProductService productService) {
+		List<SearchData> result = new ArrayList<SearchData>();
+		
+		List<String> productTypes = new ArrayList<String>();
+		productService.getAllProducts().forEach(product -> {
+			if(!productTypes.contains(product.getType())) {
+				productTypes.add(product.getType());
+			}
+		});
+		productTypes.forEach(pt -> {
+			List<String> manufactorers = new ArrayList<String>();
+			productService.getAllProductsByType(pt).forEach(product -> {
+				if(!manufactorers.contains(product.getManufactorer())) {
+					manufactorers.add(product.getManufactorer());
+				}
+			});
+			SearchData searchData = new SearchData();
+			searchData.setProductType(pt);
+			searchData.setManufactorers(manufactorers);
+			result.add(searchData);
+		});
+		
+		return result;
 	}
 	
 	public static List<Product> searchProducts(ProductService productService, SearchProduct searchProduct) {

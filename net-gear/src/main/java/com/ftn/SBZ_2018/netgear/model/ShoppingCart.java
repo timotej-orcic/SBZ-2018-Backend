@@ -3,6 +3,7 @@ package com.ftn.SBZ_2018.netgear.model;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class ShoppingCart {
@@ -24,7 +26,8 @@ public class ShoppingCart {
 	@Column(nullable=false)
 	private Date salesDate;
 	
-	@OneToMany(mappedBy="shoppingCart", fetch=FetchType.EAGER)
+	@JsonManagedReference
+	@OneToMany(mappedBy="shoppingCart", fetch=FetchType.EAGER, cascade = CascadeType.PERSIST)
 	private Set<ShoppingCartItem> items;
 	
 	@ManyToOne

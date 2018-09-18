@@ -6,12 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Product {
@@ -45,15 +42,10 @@ public class Product {
 	@OneToOne(cascade = CascadeType.ALL)
 	private UploadedImage base64Image;
 	
-	@ManyToOne
-	@JsonBackReference(value="shopCart-product")
-	private ShoppingCart shopCart;
-	
 	public Product() {}
 
 	public Product(Long id, String type, String manufactorer, String description,
-			Double price, int warrantyInMonths, int lagerQuantity,
-			UploadedImage base64Image, ShoppingCart shopCart) {
+			Double price, int warrantyInMonths, int lagerQuantity, UploadedImage base64Image) {
 		this.id = id;
 		this.type = type;
 		this.manufactorer = manufactorer;
@@ -62,7 +54,6 @@ public class Product {
 		this.warrantyInMonths = warrantyInMonths;
 		this.lagerQuantity = lagerQuantity;
 		this.base64Image = base64Image;
-		this.shopCart = shopCart;
 	}
 
 	public Long getId() {
@@ -129,18 +120,10 @@ public class Product {
 		this.base64Image = base64Image;
 	}
 
-	public ShoppingCart getShopCart() {
-		return shopCart;
-	}
-
-	public void setShopCart(ShoppingCart shopCart) {
-		this.shopCart = shopCart;
-	}
-
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", type=" + type + ", manufactorer=" + manufactorer + ", description="
 				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths + ", lagerQuantity="
-				+ lagerQuantity + ", base64Image=" + base64Image + ", shopCart=" + shopCart + "]";
+				+ lagerQuantity + ", base64Image=" + base64Image + "]";
 	}
 }

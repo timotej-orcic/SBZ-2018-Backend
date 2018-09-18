@@ -1,6 +1,7 @@
 package com.ftn.SBZ_2018.netgear.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletRequest;
@@ -15,10 +16,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ftn.SBZ_2018.netgear.dao.ProductPreferencesDAO;
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
+import com.ftn.SBZ_2018.netgear.dao.SearchData;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.dao.ShoppingCartFactory;
 import com.ftn.SBZ_2018.netgear.dao.ShoppingCartItemDAO;
@@ -55,9 +57,6 @@ public class WebShopController {
 	@Autowired
 	private UserService userService;
 	
-	List<Preference> list = new ArrayList<Preference>();
-	int sum = list.stream().mapToInt(i -> i.getProductsCount()).sum();
-	
 	@Autowired
 	private ActiveUsersStore activeUsersStore;
 	
@@ -69,14 +68,10 @@ public class WebShopController {
 	
 	@PreAuthorize("hasAuthority('0')")
 	@RequestMapping(value = "getProductParams", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<List<List<String>>> getProductParams() {
-		ResponseWrapper<List<List<String>>> retObj = new ResponseWrapper<List<List<String>>>();
-				    
-		List<List<String>> payload = new ArrayList<List<String>>();
-		payload.add(WebShopHelper.getProductTypes(productService));
-		payload.add(WebShopHelper.getManufactorers(productService));		    
+	public ResponseWrapper<List<SearchData>> getProductParams() {
+		ResponseWrapper<List<SearchData>> retObj = new ResponseWrapper<List<SearchData>>();				    
 	
-		retObj.setPayload(payload);
+		retObj.setPayload(WebShopHelper.getSearchData(productService));
 		retObj.setMessage("Product params loaded successfully");
 		retObj.setSuccess(true);
 	    
@@ -85,32 +80,43 @@ public class WebShopController {
 	
 	@PreAuthorize("hasAuthority('0')")
 	@RequestMapping(value = "findSingleProduct", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<List<Product>> findSingleProduct(@RequestBody SearchProduct product, ServletRequest request) {
-		ResponseWrapper<List<Product>> retObj = new ResponseWrapper<List<Product>>();
+	public ResponseWrapper<List<ProductPreferencesDAO>> findSingleProduct(@RequestBody SearchProduct product, ServletRequest request) {
+		ResponseWrapper<List<ProductPreferencesDAO>> retObj = new ResponseWrapper<List<ProductPreferencesDAO>>();
 		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 	    String token = httpRequest.getHeader(this.tokenHeader);
 	    String username = jwtUtils.getUsernameFromToken(token);
 		
-	    if(username != null) {
-	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
-		    KieSession userSession = activeUser.getKieSessions().get("userSession");
-		    
+	    if(username != null) {		    
 		    List<Product> searchList = WebShopHelper.searchProducts(productService, product);
 		    if(searchList.isEmpty()) {
-		    	
+		    	retObj.setPayload(null);
+		    	retObj.setMessage("No results found");
+		    	retObj.setSuccess(false);
 		    }
 		    else {
+		    	User user = userService.findByUsername(username);
+		    	List<ProductPreferencesDAO> payload = new ArrayList<ProductPreferencesDAO>();
 		    	if(product.isIncludeUserPreferences()) {
-		    		userSession.insert(searchList);
-		    		userSession.fireAllRules();
-		    		retObj.setPayload(searchList);
+		    		searchList.forEach(li -> {
+		    			ProductPreferencesDAO dao = new ProductPreferencesDAO();
+		    			List<Preference> prefList = preferenceService.getAllUserPreferencesByProdType(user.getId(), li.getType());
+		    			dao.setProduct(li);
+		    			dao.setPreferences(prefList);
+		    			payload.add(dao);
+		    		});
+		    		retObj.setPayload(payload);
 			    	retObj.setMessage("Advanced search successfull");
-			    	retObj.setSuccess(true);
-		    		
+			    	retObj.setSuccess(true);		    		
 		    	}
 		    	else {
-		    		retObj.setPayload(searchList);
+		    		searchList.forEach(li -> {
+		    			ProductPreferencesDAO dao = new ProductPreferencesDAO();
+		    			dao.setProduct(li);
+		    			dao.setPreferences(null);
+		    			payload.add(dao);
+		    		});
+		    		retObj.setPayload(payload);
 			    	retObj.setMessage("Basic search successfull");
 			    	retObj.setSuccess(true);
 		    	}
@@ -147,13 +153,22 @@ public class WebShopController {
 		    userSession.setGlobal("user", user);
 		    
 		    myCart.getItems().forEach(item -> {
+		    	/*calculate preferences*/
 		    	userSession.insert(item);
 		    	userSession.fireAllRules();
+		    	/*END calculate preferences*/
+		    	Product p = productService.findById(item.getProduct().getId());
+		    	p.setLagerQuantity(p.getLagerQuantity() - item.getQuantity());
+		    	productService.updateProduct(p);
 		    });
 		    
 		    for (FactHandle factHandle : userSession.getFactHandles()) {
 		    	userSession.delete(factHandle);
 	        }
+		    
+		    myCart.setSalesDate(new Date());
+		    myCart.setUser(user);
+		    shoppingCartService.insertShoppingCart(myCart);
 		    
 		    retObj.setPayload("");
 	    	retObj.setMessage("Shopping suceeded");
