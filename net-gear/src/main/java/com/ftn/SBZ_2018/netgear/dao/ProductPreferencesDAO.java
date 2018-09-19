@@ -2,39 +2,38 @@ package com.ftn.SBZ_2018.netgear.dao;
 
 import java.util.List;
 
-import com.ftn.SBZ_2018.netgear.model.Preference;
 import com.ftn.SBZ_2018.netgear.model.Product;
 
 public class ProductPreferencesDAO {
 
-	private Product product;
-	private List<Preference> preferences;
+	private List<Product> products;
+	private List<PreferenceDAO> preferences;
 	
 	public ProductPreferencesDAO () {}
 
-	public ProductPreferencesDAO(Product product, List<Preference> preferences) {
-		this.product = product;
+	public ProductPreferencesDAO(List<Product> products, List<PreferenceDAO> preferences) {
+		this.products = products;
 		this.preferences = preferences;
 	}
 
-	public Product getProduct() {
-		return product;
+	public List<Product> getProducts() {
+		return products;
 	}
 
-	public void setProduct(Product product) {
-		this.product = product;
+	public void setProducts(List<Product> products) {
+		this.products = products;
 	}
 
-	public List<Preference> getPreferences() {
+	public List<PreferenceDAO> getPreferences() {
 		return preferences;
 	}
 
-	public void setPreferences(List<Preference> preferences) {
+	public void setPreferences(List<PreferenceDAO> preferences) {
 		this.preferences = preferences;
 	}
 
 	@Override
 	public String toString() {
-		return "ProductPreferencesDAO [product=" + product + ", preferences=" + preferences + "]";
+		return "ProductPreferencesDAO [products=" + products + ", preferences=" + preferences + "]";
 	}
 }

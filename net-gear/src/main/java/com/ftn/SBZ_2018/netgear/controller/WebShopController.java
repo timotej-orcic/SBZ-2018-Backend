@@ -1,6 +1,5 @@
 package com.ftn.SBZ_2018.netgear.controller;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ftn.SBZ_2018.netgear.dao.PreferenceDAOFactory;
 import com.ftn.SBZ_2018.netgear.dao.ProductPreferencesDAO;
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.dao.SearchData;
@@ -80,8 +80,8 @@ public class WebShopController {
 	
 	@PreAuthorize("hasAuthority('0')")
 	@RequestMapping(value = "findSingleProduct", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseWrapper<List<ProductPreferencesDAO>> findSingleProduct(@RequestBody SearchProduct product, ServletRequest request) {
-		ResponseWrapper<List<ProductPreferencesDAO>> retObj = new ResponseWrapper<List<ProductPreferencesDAO>>();
+	public ResponseWrapper<ProductPreferencesDAO> findSingleProduct(@RequestBody SearchProduct product, ServletRequest request) {
+		ResponseWrapper<ProductPreferencesDAO> retObj = new ResponseWrapper<ProductPreferencesDAO>();
 		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 	    String token = httpRequest.getHeader(this.tokenHeader);
@@ -96,27 +96,19 @@ public class WebShopController {
 		    }
 		    else {
 		    	User user = userService.findByUsername(username);
-		    	List<ProductPreferencesDAO> payload = new ArrayList<ProductPreferencesDAO>();
+	    		ProductPreferencesDAO dao = new ProductPreferencesDAO();
 		    	if(product.isIncludeUserPreferences()) {
-		    		searchList.forEach(li -> {
-		    			ProductPreferencesDAO dao = new ProductPreferencesDAO();
-		    			List<Preference> prefList = preferenceService.getAllUserPreferencesByProdType(user.getId(), li.getType());
-		    			dao.setProduct(li);
-		    			dao.setPreferences(prefList);
-		    			payload.add(dao);
-		    		});
-		    		retObj.setPayload(payload);
+	    			List<Preference> prefList = preferenceService.getAllUserPreferencesByProdType(user.getId(), product.getProductType());
+	    			dao.setProducts(searchList);
+	    			dao.setPreferences(PreferenceDAOFactory.createDaoList(prefList));
+		    		retObj.setPayload(dao);
 			    	retObj.setMessage("Advanced search successfull");
 			    	retObj.setSuccess(true);		    		
 		    	}
 		    	else {
-		    		searchList.forEach(li -> {
-		    			ProductPreferencesDAO dao = new ProductPreferencesDAO();
-		    			dao.setProduct(li);
-		    			dao.setPreferences(null);
-		    			payload.add(dao);
-		    		});
-		    		retObj.setPayload(payload);
+		    		dao.setProducts(searchList);
+	    			dao.setPreferences(null);
+		    		retObj.setPayload(dao);
 			    	retObj.setMessage("Basic search successfull");
 			    	retObj.setSuccess(true);
 		    	}
