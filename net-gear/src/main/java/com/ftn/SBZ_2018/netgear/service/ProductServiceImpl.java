@@ -33,6 +33,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 	
 	@Override
+	public List<Product> getAllProductsByTypeAndSpecialLabel(String productType, int min, int max) {
+		return productRepo.findAll().stream()
+				.filter(p -> p.getType().equals(productType) && min <= p.getSpecialLabel() && p.getSpecialLabel() <= max)
+				.collect(Collectors.toList());
+	}
+	
+	@Override
 	public Product insertProduct(Product product) {
 		return productRepo.save(product);
 	}

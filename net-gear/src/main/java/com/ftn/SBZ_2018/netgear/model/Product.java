@@ -26,6 +26,9 @@ public class Product {
 	@Column(nullable=true, length=300)
 	private String description;
 	
+	@Column(nullable=false, length=50)
+	private int specialLabel;
+	
 	@Column(nullable=false)
 	@Min(0)
 	private Double price;
@@ -44,12 +47,13 @@ public class Product {
 	
 	public Product() {}
 
-	public Product(Long id, String type, String manufactorer, String description,
+	public Product(Long id, String type, String manufactorer, String description, int specialLabel,
 			Double price, int warrantyInMonths, int lagerQuantity, UploadedImage base64Image) {
 		this.id = id;
 		this.type = type;
 		this.manufactorer = manufactorer;
 		this.description = description;
+		this.specialLabel = specialLabel;
 		this.price = price;
 		this.warrantyInMonths = warrantyInMonths;
 		this.lagerQuantity = lagerQuantity;
@@ -88,6 +92,14 @@ public class Product {
 		this.description = description;
 	}
 
+	public int getSpecialLabel() {
+		return specialLabel;
+	}
+
+	public void setSpecialLabel(int specialLabel) {
+		this.specialLabel = specialLabel;
+	}
+
 	public Double getPrice() {
 		return price;
 	}
@@ -123,7 +135,7 @@ public class Product {
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", type=" + type + ", manufactorer=" + manufactorer + ", description="
-				+ description + ", price=" + price + ", warrantyInMonths=" + warrantyInMonths + ", lagerQuantity="
-				+ lagerQuantity + ", base64Image=" + base64Image + "]";
+				+ description + ", specialLabel=" + specialLabel + ", price=" + price + ", warrantyInMonths="
+				+ warrantyInMonths + ", lagerQuantity=" + lagerQuantity + ", base64Image=" + base64Image + "]";
 	}
 }

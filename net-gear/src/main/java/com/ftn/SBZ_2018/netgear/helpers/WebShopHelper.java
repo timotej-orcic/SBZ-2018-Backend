@@ -1,10 +1,16 @@
 package com.ftn.SBZ_2018.netgear.helpers;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
+
+import com.ftn.SBZ_2018.netgear.dao.NetworkSystemItemDAO;
 import com.ftn.SBZ_2018.netgear.dao.SearchData;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.model.Product;
@@ -14,30 +20,6 @@ import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 
 public class WebShopHelper {
-
-	/*public static List<String> getProductTypes(ProductService productService) {
-		List<String> retList = new ArrayList<String>();
-		
-		productService.getAllProducts().forEach(product -> {
-			if(!retList.contains(product.getType())) {
-				retList.add(product.getType());
-			}
-		});
-		
-		return retList;
-	}
-	
-	public static List<String> getManufactorers(ProductService productService) {
-		List<String> retList = new ArrayList<String>();
-		
-		productService.getAllProducts().forEach(product -> {
-			if(!retList.contains(product.getManufactorer())) {
-				retList.add(product.getManufactorer());
-			}
-		});
-		
-		return retList;
-	}*/
 	
 	public static List<SearchData> getSearchData(ProductService productService) {
 		List<SearchData> result = new ArrayList<SearchData>();
@@ -107,6 +89,42 @@ public class WebShopHelper {
 				}
 			});
 		});
+		
+		return result;
+	}
+	
+	public static List<NetworkSystemItemDAO> getCheapestItems(QueryResults queryList) {
+		List<NetworkSystemItemDAO> result = new ArrayList<NetworkSystemItemDAO>();
+		
+		List<NetworkSystemItemDAO> items = new ArrayList<NetworkSystemItemDAO>();
+		for (QueryResultsRow row : queryList) {
+			NetworkSystemItemDAO item = (NetworkSystemItemDAO) row.get("$nsi");
+			items.add(item);
+		}
+		
+		//sort list by prices
+		Collections.sort(items, new Comparator<NetworkSystemItemDAO>(){
+		     public int compare(NetworkSystemItemDAO o1, NetworkSystemItemDAO o2){
+		         if(o1.getProduct().getPrice() == o2.getProduct().getPrice())
+		             return 0;
+		         return o1.getProduct().getPrice() < o2.getProduct().getPrice() ? -1 : 1;
+		     }
+		});
+		
+		//get cheapest item(s)
+		NetworkSystemItemDAO firstItem = items.get(0);
+		Double firstPrice = firstItem.getProduct().getPrice();
+		result.add(firstItem);
+		for (int i = 1; i < items.size(); i++) {
+			NetworkSystemItemDAO nextItem = items.get(i);
+			Double nextPrice = nextItem.getProduct().getPrice();
+			if(firstPrice == nextPrice) {
+				result.add(nextItem);
+			}
+			else {
+				break;
+			}
+		}
 		
 		return result;
 	}

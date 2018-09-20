@@ -15,6 +15,7 @@ public class ProductFactory {
 		retObj.setType(productDAO.getType());
 		retObj.setManufactorer(productDAO.getManufactorer());
 		retObj.setDescription(productDAO.getDescription());
+		retObj.setSpecialLabel(productDAO.getSpecialLabel());
 		retObj.setPrice(productDAO.getPrice());
 		retObj.setWarrantyInMonths(productDAO.getWarrantyInMonths());
 		retObj.setLagerQuantity(productDAO.getLagerQuantity());
@@ -35,6 +36,7 @@ public class ProductFactory {
 		product.setType(productDAO.getType());
 		product.setManufactorer(productDAO.getManufactorer());
 		product.setDescription(productDAO.getDescription());
+		product.setSpecialLabel(productDAO.getSpecialLabel());
 		product.setPrice(productDAO.getPrice());
 		product.setWarrantyInMonths(productDAO.getWarrantyInMonths());
 		product.setLagerQuantity(productDAO.getLagerQuantity());

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
+import org.kie.api.runtime.rule.QueryResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -17,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ftn.SBZ_2018.netgear.dao.NetworkSystemItemDAO;
 import com.ftn.SBZ_2018.netgear.dao.PreferenceDAOFactory;
 import com.ftn.SBZ_2018.netgear.dao.ProductPreferencesDAO;
 import com.ftn.SBZ_2018.netgear.dao.ResponseWrapper;
 import com.ftn.SBZ_2018.netgear.dao.SearchData;
+import com.ftn.SBZ_2018.netgear.dao.SearchNetworkSystem;
 import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.dao.ShoppingCartFactory;
 import com.ftn.SBZ_2018.netgear.dao.ShoppingCartItemDAO;
@@ -172,6 +175,41 @@ public class WebShopController {
 	    	retObj.setSuccess(false);
 	    }
 		
+		return retObj;
+	}
+	
+	@PreAuthorize("hasAuthority('0')")
+	@RequestMapping(value = "findNetworkSystem", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseWrapper<List<Product>> findNetworkSystem(@RequestBody SearchNetworkSystem networkSystemData, ServletRequest request) {
+		ResponseWrapper<List<Product>> retObj = new ResponseWrapper<List<Product>>();
+		
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+	    String token = httpRequest.getHeader(this.tokenHeader);
+	    String username = jwtUtils.getUsernameFromToken(token);
+		
+	    if(username != null) {
+	    	User user = userService.findByUsername(username);
+	    	ActiveUser activeUser = activeUsersStore.getActiveUsers().get(username);
+		    KieSession userSession = activeUser.getKieSessions().get("userSession");
+		    
+		    userSession.getAgenda().getAgendaGroup("networkSystem").setFocus();
+		    userSession.setGlobal("productService", productService);
+		    userSession.setGlobal("preferenceService", preferenceService);
+		    userSession.setGlobal("preferenceTypeService", preferenceTypeService);
+		    userSession.setGlobal("user", user);
+		    
+		    userSession.insert(networkSystemData);
+		    userSession.fireAllRules();
+		    
+		    QueryResults cables = userSession.getQueryResults("Get all Network system items by type", "LAN Cable");
+		    List<NetworkSystemItemDAO> cheapestCables = WebShopHelper.getCheapestItems(cables);
+	    }
+	    else {
+	    	retObj.setPayload(null);
+	    	retObj.setMessage("Invalid username");
+	    	retObj.setSuccess(false);
+	    }
+	    
 		return retObj;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.lang.Long;
 import java.lang.Double;
 import java.lang.String;
+import java.lang.Math;
 
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
@@ -16,17 +17,32 @@ import com.ftn.SBZ_2018.netgear.model.Preference;
 import com.ftn.SBZ_2018.netgear.model.PreferenceType;
 import com.ftn.SBZ_2018.netgear.model.User;
 
+import com.ftn.SBZ_2018.netgear.dao.SearchNetworkSystem;
+import com.ftn.SBZ_2018.netgear.dao.NetworkSystemItemDAO;
+
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceService;
 import com.ftn.SBZ_2018.netgear.service.PreferenceTypeService;
 
+declare NetworkSystemHelper
+	routersCount : int
+	switchesCount : int
+	cableLengthTotal : int
+	cableTrayLengthTotal : int	
+	teleClosetsCount : int
+	patchPanelsCount : int
+	ethernetExtendersCount : int
+	pcCount : int
+	minLimit : int
+	maxLimit : int
+end
+
 declare trait PreferenceTrait 
 	type : String
 end
 
-//global ProductService productService;
-//global ShoppingCartService shoppingCartService;
+global ProductService productService;
 global PreferenceService preferenceService;
 global PreferenceTypeService preferenceTypeService;
 global User user;
@@ -274,7 +290,7 @@ end
 
 
 rule "Single product add new preference"
-agenda-group "singleProduct"
+	agenda-group "singleProduct"
 	salience 99
 	no-loop true
 	when
@@ -295,4 +311,108 @@ agenda-group "singleProduct"
 		else {
 			preferenceService.insertPreference($p);
 		}
+end
+
+rule "Network system 'Copper' start"
+	agenda-group "networkSystem"
+	salience 100
+	no-loop true
+	when
+		$s : SearchNetworkSystem ( (streetCabling == "Copper"), $floors : floorsCount,
+			$avgFloorSurface : avarageFloorSurface, $avgOfficeCnt :  avarageOfficeCountByFloor,
+			$avgPcCount : avarageComputerCountByOffice, $wifi : includeWiFi,
+			$wifiSurface : avarageWiFiCoverageSurfaceByFloor, $downSpeed : wantedAvarageDownloadSpeed,
+			$upSpeed : wantedAvarageUploadSpeed )
+	then		
+		int routersCount;
+		int switchesCount;
+		int cableLengthTotal;
+		int cableTrayLengthTotal;
+		
+		int teleClosetsCount;
+		teleClosetsCount = 1;
+		int patchPanelsCount;
+		patchPanelsCount = 1;
+		int ethernetExtendersCount;
+		ethernetExtendersCount = 0;
+		
+		double surface = $floors * $avgFloorSurface;
+		int officeCnt = $floors * $avgOfficeCnt.intValue();
+		int pcCount = officeCnt * $avgPcCount.intValue();
+		
+		if($wifi){
+			routersCount = (int)($wifiSurface / $avgFloorSurface) * officeCnt;
+		} 
+		else {
+			routersCount = 0;
+		}
+		switchesCount = officeCnt - routersCount;
+		cableLengthTotal = (int)Math.sqrt($s.getAvarageFloorSurface()) * officeCnt + 2 * pcCount;
+		cableTrayLengthTotal = cableLengthTotal;		
+		int minLimit = (int) ($downSpeed + $upSpeed) / 2;
+		int maxLimit;
+		maxLimit = 100;
+		
+		NetworkSystemHelper nsh = new NetworkSystemHelper(routersCount, switchesCount, cableLengthTotal,
+			cableTrayLengthTotal, teleClosetsCount, patchPanelsCount, ethernetExtendersCount,
+			pcCount, minLimit, maxLimit);
+		insert(nsh);
+end
+
+rule "Network system insert facts"
+	agenda-group "networkSystem"
+	salience 99
+	no-loop true
+	when
+		$nsh : NetworkSystemHelper ( )
+	then
+		List<Product> routersList = productService.getAllProductsByTypeAndSpecialLabel("Router", $nsh.getMinLimit(), $nsh.getMaxLimit());
+		routersList.forEach(p -> {
+			if(p.getLagerQuantity() >= $nsh.getRoutersCount()){
+				insert(new NetworkSystemItemDAO(p, $nsh.getRoutersCount()));
+			}
+		});
+		
+		List<Product> switchesList = productService
+			.getAllProductsByTypeAndSpecialLabel("Switch", (int)$nsh.getPcCount() / 2, $nsh.getPcCount() * 2);
+		switchesList.forEach(p -> {
+			if(p.getLagerQuantity() >= $nsh.getSwitchesCount()){
+				insert(new NetworkSystemItemDAO(p, $nsh.getSwitchesCount()));
+			}
+		});
+		
+		List<Product> cablesList = productService
+			.getAllProductsByTypeAndSpecialLabel("LAN Cable", $nsh.getMinLimit(), $nsh.getMaxLimit());
+		cablesList.forEach(p -> {
+			if(p.getLagerQuantity() * 10 >= $nsh.getCableLengthTotal()){
+				insert(new NetworkSystemItemDAO(p, (int) $nsh.getCableLengthTotal() / 10));
+			}
+		});
+		
+		List<Product> cableTraysList = productService
+			.getAllProductsByType("Cable tray");
+		cableTraysList.forEach(p -> {
+			if(p.getLagerQuantity() * 10 >= $nsh.getCableTrayLengthTotal()){
+				insert(new NetworkSystemItemDAO(p, (int) $nsh.getCableTrayLengthTotal() / 10));
+			}
+		});
+		
+		List<Product> teleClosetsList = productService.getAllProductsByType("Telecommunication closet");
+		teleClosetsList.forEach(p -> {
+			insert(new NetworkSystemItemDAO(p, $nsh.getTeleClosetsCount()));
+		});
+		
+		List<Product> patchPanelsList = productService.getAllProductsByType("Patch panel");
+		patchPanelsList.forEach(p -> {
+			insert(new NetworkSystemItemDAO(p, $nsh.getPatchPanelsCount()));
+		});
+		
+		List<Product> ethernetExtenderList = productService.getAllProductsByType("Ethernet extender");
+		ethernetExtenderList.forEach(p -> {
+			insert(new NetworkSystemItemDAO(p, $nsh.getEthernetExtendersCount()));
+		});
+end
+
+query "Get all Network system items by type" (String $productType)
+	$nsi : NetworkSystemItemDAO ( product.type == $productType )
 end

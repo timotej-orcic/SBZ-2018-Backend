@@ -9,6 +9,7 @@ public interface ProductService {
 	public Product findById(Long id);
 	public List<Product> getAllProducts();
 	public List<Product> getAllProductsByType(String productType);
+	public List<Product> getAllProductsByTypeAndSpecialLabel(String productType, int min, int max);
 	public Product insertProduct(Product product);
 	public Product updateProduct(Product product);
 	public void deleteProduct(Long id);
