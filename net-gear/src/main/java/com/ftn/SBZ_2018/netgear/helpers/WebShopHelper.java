@@ -16,6 +16,7 @@ import com.ftn.SBZ_2018.netgear.dao.SearchProduct;
 import com.ftn.SBZ_2018.netgear.model.Product;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCart;
 import com.ftn.SBZ_2018.netgear.model.ShoppingCartItem;
+import com.ftn.SBZ_2018.netgear.service.PreferenceService;
 import com.ftn.SBZ_2018.netgear.service.ProductService;
 import com.ftn.SBZ_2018.netgear.service.ShoppingCartService;
 
@@ -99,6 +100,8 @@ public class WebShopHelper {
 		List<NetworkSystemItemDAO> items = new ArrayList<NetworkSystemItemDAO>();
 		for (QueryResultsRow row : queryList) {
 			NetworkSystemItemDAO item = (NetworkSystemItemDAO) row.get("$nsi");
+			if(item.getQuantity() == 0)
+				return null;
 			items.add(item);
 		}
 		
@@ -127,5 +130,24 @@ public class WebShopHelper {
 		}
 		
 		return result;
+	}
+	
+	public static NetworkSystemItemDAO getBestByPreference(PreferenceService preferenceService,
+			List<NetworkSystemItemDAO> items, Long userId) {
+		Double maxSum = 0.0;
+		int maxIndex = 0;
+		for (int i = 0; i < items.size(); i++) {
+			Double prefSum = preferenceService.getAllUserPreferencesByProdType(userId, items.get(i).getProduct().getType())
+					.stream().mapToDouble(p -> p.getPercentage()).sum();
+			if(prefSum > maxSum) {
+				maxSum = prefSum;
+				maxIndex = i;
+			}
+		}
+		return items.get(maxIndex);
+	}
+	
+	public static Double calculatePrice(List<NetworkSystemItemDAO> items) {		
+		return items.stream().mapToDouble(i -> i.getProduct().getPrice() * i.getQuantity()).sum(); 
 	}
 }

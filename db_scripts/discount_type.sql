@@ -1,0 +1,1 @@
+insert into sbz_2018_db.discount_type values (0,'single'), (1, 'season');

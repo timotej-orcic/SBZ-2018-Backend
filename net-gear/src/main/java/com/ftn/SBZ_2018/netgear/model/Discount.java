@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 @Entity
@@ -35,6 +36,7 @@ public class Discount {
 	
 	@Column(nullable=false)
 	@Min(0)
+	@Max(100)
 	private int discValue;
 
 	public Discount() {}

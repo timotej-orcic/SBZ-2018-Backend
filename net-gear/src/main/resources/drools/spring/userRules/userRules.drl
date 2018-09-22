@@ -36,10 +36,7 @@ declare NetworkSystemHelper
 	pcCount : int
 	minLimit : int
 	maxLimit : int
-end
-
-declare trait PreferenceTrait 
-	type : String
+	cableType: String
 end
 
 global ProductService productService;
@@ -324,38 +321,129 @@ rule "Network system 'Copper' start"
 			$wifiSurface : avarageWiFiCoverageSurfaceByFloor, $downSpeed : wantedAvarageDownloadSpeed,
 			$upSpeed : wantedAvarageUploadSpeed )
 	then		
-		int routersCount;
-		int switchesCount;
-		int cableLengthTotal;
-		int cableTrayLengthTotal;
+		double surface = $floors * $avgFloorSurface;
+		int officeCnt = $floors * $avgOfficeCnt.intValue();
+		int pcCount = officeCnt * $avgPcCount.intValue();
 		
+		int routersCount;
+		if($wifi){
+			routersCount = (int)(($wifiSurface / $avgFloorSurface) * officeCnt);
+		} 
+		else {
+			routersCount = 0;
+		}
+		int switchesCount = officeCnt - routersCount;
+		int cableLengthTotal = (int)Math.sqrt($s.getAvarageFloorSurface()) * officeCnt + 2 * pcCount;
+		int cableTrayLengthTotal = cableLengthTotal;
 		int teleClosetsCount;
 		teleClosetsCount = 1;
 		int patchPanelsCount;
 		patchPanelsCount = 1;
 		int ethernetExtendersCount;
 		ethernetExtendersCount = 0;
-		
-		double surface = $floors * $avgFloorSurface;
-		int officeCnt = $floors * $avgOfficeCnt.intValue();
-		int pcCount = officeCnt * $avgPcCount.intValue();
-		
-		if($wifi){
-			routersCount = (int)($wifiSurface / $avgFloorSurface) * officeCnt;
-		} 
-		else {
-			routersCount = 0;
-		}
-		switchesCount = officeCnt - routersCount;
-		cableLengthTotal = (int)Math.sqrt($s.getAvarageFloorSurface()) * officeCnt + 2 * pcCount;
-		cableTrayLengthTotal = cableLengthTotal;		
+			
 		int minLimit = (int) ($downSpeed + $upSpeed) / 2;
 		int maxLimit;
 		maxLimit = 100;
 		
 		NetworkSystemHelper nsh = new NetworkSystemHelper(routersCount, switchesCount, cableLengthTotal,
 			cableTrayLengthTotal, teleClosetsCount, patchPanelsCount, ethernetExtendersCount,
-			pcCount, minLimit, maxLimit);
+			pcCount, minLimit, maxLimit, "LAN Cable");
+		insert(nsh);
+end
+
+rule "Network system 'Optical-SM' start"
+	agenda-group "networkSystem"
+	salience 100
+	no-loop true
+	when
+		$s : SearchNetworkSystem ( (streetCabling == "Optical-SM"), $floors : floorsCount,
+			$avgFloorSurface : avarageFloorSurface, $avgOfficeCnt :  avarageOfficeCountByFloor,
+			$avgPcCount : avarageComputerCountByOffice, $wifi : includeWiFi,
+			$wifiSurface : avarageWiFiCoverageSurfaceByFloor, $downSpeed : wantedAvarageDownloadSpeed,
+			$upSpeed : wantedAvarageUploadSpeed )
+	then
+		double surface = $floors * $avgFloorSurface;
+		int officeCnt = $floors * $avgOfficeCnt.intValue();
+		int pcCount = officeCnt * $avgPcCount.intValue();
+		
+		int routersCount;
+		if($wifi){
+			routersCount = (int)(($wifiSurface / $avgFloorSurface) * officeCnt);
+		} 
+		else {
+			routersCount = 0;
+		}
+		int switchesCount = officeCnt - routersCount;
+		int cableLengthTotal = (int)Math.sqrt($s.getAvarageFloorSurface()) * officeCnt + 2 * pcCount
+			+ $floors * 3;
+		int cableTrayLengthTotal = cableLengthTotal;		
+		int teleClosetsCount = $floors + 1;
+		
+		double pcsByFloor = $avgPcCount * $avgOfficeCnt;
+		double patchesDouble = pcsByFloor / 50.0;
+		int patches = (int) Math.ceil(patchesDouble);
+		
+		int patchPanelsCount = teleClosetsCount * patches;
+		int ethernetExtendersCount = (int)Math.sqrt($s.getAvarageFloorSurface()) / 200;
+			
+		int minLimit = (int) ($downSpeed + $upSpeed) / 2;
+		int maxLimit;
+		maxLimit = 1000;
+		
+		NetworkSystemHelper nsh = new NetworkSystemHelper(routersCount, switchesCount, cableLengthTotal,
+			cableTrayLengthTotal, teleClosetsCount, patchPanelsCount, ethernetExtendersCount,
+			pcCount, minLimit, maxLimit, "Optical Cable");
+		insert(nsh);
+end
+
+rule "Network system 'Optical-MM' start"
+	agenda-group "networkSystem"
+	salience 100
+	no-loop true
+	when
+		$s : SearchNetworkSystem ( (streetCabling == "Optical-MM"), $floors : floorsCount,
+			$avgFloorSurface : avarageFloorSurface, $avgOfficeCnt :  avarageOfficeCountByFloor,
+			$avgPcCount : avarageComputerCountByOffice, $wifi : includeWiFi,
+			$wifiSurface : avarageWiFiCoverageSurfaceByFloor, $downSpeed : wantedAvarageDownloadSpeed,
+			$upSpeed : wantedAvarageUploadSpeed )
+	then
+		double surface = $floors * $avgFloorSurface;
+		int officeCnt = $floors * $avgOfficeCnt.intValue();
+		int pcCount = officeCnt * $avgPcCount.intValue();
+		
+		int routersCount;
+		if($wifi){
+			routersCount = (int)(($wifiSurface / $avgFloorSurface) * officeCnt);
+		} 
+		else {
+			routersCount = 0;
+		}
+		int switchesCount = officeCnt - routersCount;
+		int cableLengthTotal = (int)Math.sqrt($s.getAvarageFloorSurface()) * officeCnt + 2 * pcCount
+			+ $floors * 5;
+		int cableTrayLengthTotal = cableLengthTotal;	
+		
+		double pcsByFloor = $avgPcCount * $avgOfficeCnt;
+		double patchesByFloorDouble = pcsByFloor / 50.0;
+		int patchesByFloor = (int) Math.ceil(patchesByFloorDouble);
+		
+		double teleClosetsByFloorDouble = patchesByFloorDouble / 8.0;
+		int teleClosetsByFloor = (int) Math.ceil(teleClosetsByFloorDouble);
+		
+		int patchPanelsCount = patchesByFloor * $floors;
+			
+		int teleClosetsCount = teleClosetsByFloor * $floors;
+		
+		int ethernetExtendersCount = (int)Math.sqrt($s.getAvarageFloorSurface()) / 200;
+			
+		int minLimit = (int) ($downSpeed + $upSpeed) / 2;
+		int maxLimit;
+		maxLimit = 10000;
+		
+		NetworkSystemHelper nsh = new NetworkSystemHelper(routersCount, switchesCount, cableLengthTotal,
+			cableTrayLengthTotal, teleClosetsCount, patchPanelsCount, ethernetExtendersCount,
+			pcCount, minLimit, maxLimit, "Optical Cable");
 		insert(nsh);
 end
 
@@ -374,7 +462,7 @@ rule "Network system insert facts"
 		});
 		
 		List<Product> switchesList = productService
-			.getAllProductsByTypeAndSpecialLabel("Switch", (int)$nsh.getPcCount() / 2, $nsh.getPcCount() * 2);
+			.getAllProductsByType("Switch");
 		switchesList.forEach(p -> {
 			if(p.getLagerQuantity() >= $nsh.getSwitchesCount()){
 				insert(new NetworkSystemItemDAO(p, $nsh.getSwitchesCount()));
@@ -382,10 +470,15 @@ rule "Network system insert facts"
 		});
 		
 		List<Product> cablesList = productService
-			.getAllProductsByTypeAndSpecialLabel("LAN Cable", $nsh.getMinLimit(), $nsh.getMaxLimit());
+			.getAllProductsByTypeAndSpecialLabel($nsh.getCableType(), $nsh.getMinLimit(), $nsh.getMaxLimit());
 		cablesList.forEach(p -> {
 			if(p.getLagerQuantity() * 10 >= $nsh.getCableLengthTotal()){
-				insert(new NetworkSystemItemDAO(p, (int) $nsh.getCableLengthTotal() / 10));
+				if ($nsh.getCableLengthTotal() < 10){
+					insert(new NetworkSystemItemDAO(p, 1));	
+				}
+				else{
+					insert(new NetworkSystemItemDAO(p, (int) $nsh.getCableLengthTotal() / 10));
+				}			
 			}
 		});
 		
@@ -393,7 +486,12 @@ rule "Network system insert facts"
 			.getAllProductsByType("Cable tray");
 		cableTraysList.forEach(p -> {
 			if(p.getLagerQuantity() * 10 >= $nsh.getCableTrayLengthTotal()){
-				insert(new NetworkSystemItemDAO(p, (int) $nsh.getCableTrayLengthTotal() / 10));
+				if ($nsh.getCableTrayLengthTotal() < 10){
+					insert(new NetworkSystemItemDAO(p, 1));	
+				}
+				else{
+					insert(new NetworkSystemItemDAO(p, (int) $nsh.getCableTrayLengthTotal() / 10));
+				}						
 			}
 		});
 		
